@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Resetting default margin and padding */
 html,
 body {
   margin: 0;
@@ -10,6 +11,7 @@ body {
     "Lucida Sans", Arial, sans-serif;
 }
 
+/* Base styles for headings */
 @layer base {
   h1,
   h2,
@@ -39,24 +41,30 @@ body {
   p {
     @apply text-sm;
   }
+
+  /* Styles for forms */
   form {
-    @apply  rounded-xl p-4
+    @apply rounded-xl p-4;
   }
   label {
-    @apply mt-4
+    @apply mt-4;
   }
   input,
   select,
   textarea {
-    @apply m-1 rounded  bg-card p-1;
+    @apply m-1 rounded bg-card p-1;
   }
 }
 
+/* Component styles */
 @layer components {
+  /* Icon styles */
   .icon {
-    @apply  text-default-text text-xl;
+    @apply text-default-text text-xl;
   }
+
+  /* Button styles */
   .btn {
-    @apply  hover:no-underline bg-blue-accent tracking-wider w-full text-center text-nav font-bold cursor-pointer uppercase px-4 py-2 rounded-md hover:bg-blue-accent-hover transition-colors block;
+    @apply hover:no-underline bg-blue-accent tracking-wider w-full text-center text-nav font-bold cursor-pointer uppercase px-4 py-2 rounded-md hover:bg-blue-accent-hover transition-colors block;
   }
 }

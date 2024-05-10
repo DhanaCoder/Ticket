@@ -1,7 +1,7 @@
 const StatusDisplay = ({ status }) => {
   const getColor = (status) => {
     let color;
-    switch (status.toLowerCase()) {
+    switch (status) {
       case "done":
         color = "bg-green-200";
         return color;
