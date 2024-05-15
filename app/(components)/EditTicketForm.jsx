@@ -1,17 +1,21 @@
 "use client";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { signOut, useSession } from "next-auth/react";
 
 const EditTicketForm = ({ ticket }) => {
-  const EDITMODE = ticket._id === "new" ? false : true;
+  const EDITMODE = ticket._id !== "new";
   const router = useRouter();
+  const { data: session, status } = useSession();
   const startingTicketData = {
     title: "",
     description: "",
     priority: 1,
     progress: 0,
     status: "not started",
-    category: "Hardware Problem",
+    category: "",
+    email: session?.user?.email || '',
+    assignedTo: ""
   };
 
   if (EDITMODE) {
@@ -21,66 +25,93 @@ const EditTicketForm = ({ ticket }) => {
     startingTicketData["progress"] = ticket.progress;
     startingTicketData["status"] = ticket.status;
     startingTicketData["category"] = ticket.category;
+    startingTicketData["assignedTo"] = ticket.assignedTo || "";
   }
 
   const [formData, setFormData] = useState(startingTicketData);
+  const [projects, setProjects] = useState([]);
+  const [teamMembers, setTeamMembers] = useState([]);
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const res = await fetch("https://stagingapi.rekonsys.tech/all-projects");
+        if (!res.ok) {
+          throw new Error("Failed to fetch projects");
+        }
+        const data = await res.json();
+        setProjects(data); // Assuming the projects are directly in the data array
+      } catch (error) {
+        console.error("Error fetching projects:", error);
+      }
+    };
+
+    fetchProjects();
+  }, []);
 
   const handleChange = (e) => {
-    const value = e.target.value;
-    const name = e.target.name;
+    const { name, value } = e.target;
 
-    setFormData((preState) => ({
-      ...preState,
+    setFormData((prevState) => ({
+      ...prevState,
+      email: session?.user?.email || prevState.email,
       [name]: value,
     }));
+
+    // Update team members when a project is selected
+    if (name === "category") {
+      const selectedProject = projects.find(
+        (project) => project.projectname === value
+      );
+      setTeamMembers(selectedProject ? selectedProject.teamMembers : []);
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (EDITMODE) {
-      const res = await fetch(`/api/Tickets/${ticket._id}`, {
-        method: "PUT",
-        headers: {
-          "Content-type": "application/json",
-        },
-        body: JSON.stringify({ formData }),
-      });
-      if (!res.ok) {
-        throw new Error("Failed to update ticket");
+    try {
+      if (EDITMODE) {
+        const res = await fetch(`/api/Tickets/${ticket._id}`, {
+          method: "PUT",
+          headers: {
+            "Content-type": "application/json",
+          },
+          body: JSON.stringify({ formData }),
+        });
+        if (!res.ok) {
+          throw new Error("Failed to update ticket");
+        }
+      } else {
+        const res = await fetch("/api/Tickets", {
+          method: "POST",
+          body: JSON.stringify({ formData }),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        if (!res.ok) {
+          throw new Error("Failed to create ticket");
+        }
       }
-    } else {
-      const res = await fetch("/api/Tickets", {
-        method: "POST",
-        body: JSON.stringify({ formData }),
-        //@ts-ignore
-        "Content-Type": "application/json",
-      });
-      if (!res.ok) {
-        throw new Error("Failed to create ticket");
-      }
-    }
 
-    router.refresh();
-    router.push("/dashboard");
+      router.refresh();
+      router.push("/dashboard");
+    } catch (error) {
+      console.error("Error submitting ticket:", error);
+    }
   };
 
-  const categories = [
-    "Hardware Problem",
-    "Software Problem",
-    "Application Deveopment",
-    "Project",
-  ];
-
   return (
-    <div className=" flex justify-center">
+    <div className="flex justify-center">
       <form
         onSubmit={handleSubmit}
         method="post"
         className="flex flex-col gap-3 w-1/2"
       >
         <h3>{EDITMODE ? "Update Your Ticket" : "Create New Ticket"}</h3>
-        <label>Title</label>
+        
+        <label htmlFor="title">Title</label>
         <input
           id="title"
           name="title"
@@ -88,8 +119,10 @@ const EditTicketForm = ({ ticket }) => {
           onChange={handleChange}
           required={true}
           value={formData.title}
+          className="p-2 border rounded"
         />
-        <label>Description</label>
+        
+        <label htmlFor="description">Description</label>
         <textarea
           id="description"
           name="description"
@@ -97,69 +130,61 @@ const EditTicketForm = ({ ticket }) => {
           required={true}
           value={formData.description}
           rows="5"
+          className="p-2 border rounded"
         />
-        <label>Category</label>
+        
+        <label htmlFor="category">Project</label>
         <select
           name="category"
           value={formData.category}
           onChange={handleChange}
+          className="p-2 border rounded"
         >
-          {categories?.map((category, _index) => (
-            <option key={_index} value={category}>
-              {category}
+          <option value="" disabled>Select a project</option>
+          {projects?.map((project) => (
+            <option key={project._id} value={project.projectname}>
+              {project.projectname}
             </option>
           ))}
         </select>
 
+        {teamMembers.length > 0 && (
+          <>
+            <label htmlFor="assignedTo">Assign To</label>
+            <select
+              name="assignedTo"
+              value={formData.assignedTo}
+              onChange={handleChange}
+              className="p-2 border rounded"
+            >
+              <option value="" disabled>Select a team member</option>
+              {teamMembers.map((member, index) => (
+                <option key={index} value={member.value}>
+                  {member.label}
+                </option>
+              ))}
+            </select>
+          </>
+        )}
+
         <label>Priority</label>
-        <div>
-          <input
-            id="priority-1"
-            name="priority"
-            type="radio"
-            onChange={handleChange}
-            value={1}
-            checked={formData.priority == 1}
-          />
-          <label>1</label>
-          <input
-            id="priority-2"
-            name="priority"
-            type="radio"
-            onChange={handleChange}
-            value={2}
-            checked={formData.priority == 2}
-          />
-          <label>2</label>
-          <input
-            id="priority-3"
-            name="priority"
-            type="radio"
-            onChange={handleChange}
-            value={3}
-            checked={formData.priority == 3}
-          />
-          <label>3</label>
-          <input
-            id="priority-4"
-            name="priority"
-            type="radio"
-            onChange={handleChange}
-            value={4}
-            checked={formData.priority == 4}
-          />
-          <label>4</label>
-          <input
-            id="priority-5"
-            name="priority"
-            type="radio"
-            onChange={handleChange}
-            value={5}
-            checked={formData.priority == 5}
-          />
-          <label>5</label>
+        <div className="flex gap-2">
+          {[1, 2, 3, 4, 5].map((priority) => (
+            <div key={priority} className="flex items-center gap-1">
+              <input
+                id={`priority-${priority}`}
+                name="priority"
+                type="radio"
+                onChange={handleChange}
+                value={priority}
+                checked={formData.priority == priority}
+              />
+              <label htmlFor={`priority-${priority}`}>{priority}</label>
+            </div>
+          ))}
         </div>
-        <label>Progress</label>
+
+        <label htmlFor="progress">Progress</label>
         <input
           type="range"
           id="progress"
@@ -168,16 +193,24 @@ const EditTicketForm = ({ ticket }) => {
           min="0"
           max="100"
           onChange={handleChange}
+          className="w-full"
         />
-        <label>Status</label>
-        <select name="status" value={formData.status} onChange={handleChange}>
+
+        <label htmlFor="status">Status</label>
+        <select
+          name="status"
+          value={formData.status}
+          onChange={handleChange}
+          className="p-2 border rounded"
+        >
           <option value="not started">Not Started</option>
           <option value="started">Started</option>
           <option value="done">Done</option>
         </select>
+
         <input
           type="submit"
-          className="btn max-w-xs"
+          className="btn max-w-xs p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
           value={EDITMODE ? "Update Ticket" : "Create Ticket"}
         />
       </form>
