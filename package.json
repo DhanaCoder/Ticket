@@ -17,6 +17,7 @@
     "eslint": "8.46.0",
     "eslint-config-next": "13.4.13",
     "mongodb": "^5.7.0",
+    "mongodb-client-encryption": "^2.9.1",
     "mongoose": "^7.4.3",
     "next": "13.4.13",
     "next-auth": "^4.24.7",
@@ -24,6 +25,7 @@
     "punycode": "^2.3.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "react-select": "^5.8.0",
     "tailwindcss": "3.3.3"
   }
 }

@@ -1,7 +1,12 @@
 "use client";
 import { useState } from "react";
 import { signOut, useSession } from "next-auth/react";
-import { faHome, faTicket, faUser, faSignOutAlt } from "@fortawesome/free-solid-svg-icons";
+import {
+  faHome,
+  faTicket,
+  faUser,
+  faSignOutAlt,
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Link from "next/link";
 
@@ -24,17 +29,18 @@ const Nav = () => {
       <nav className="flex justify-between items-center w-full bg-gray-800 p-4">
         <div className="flex items-center space-x-4">
           <Link href="/dashboard">
-            <FontAwesomeIcon icon={faHome} className="text-white text-xl cursor-pointer" />
+            <FontAwesomeIcon
+              icon={faHome}
+              className="text-white text-xl cursor-pointer"
+            />
           </Link>
-          {session.user.role === "Admin" ? (
-            <Link href="/TicketPage/new">
-              <FontAwesomeIcon icon={faTicket} className="text-white text-xl cursor-pointer" />
-            </Link>
-          ) : (
-            <div className="text-white text-xl cursor-pointer" title="Only admins can create tickets">
-              <FontAwesomeIcon icon={faTicket} className="opacity-50" />
-            </div>
-          )}
+          <Link href="/TicketPage/new">
+            <FontAwesomeIcon
+              icon={faTicket}
+              className="text-white text-xl cursor-pointer"
+            />
+          </Link>
+          
         </div>
         <div className="relative">
           <button
@@ -54,7 +60,9 @@ const Nav = () => {
                   <p className="font-medium">Role: {session.user.role}</p>
                 </li>
                 <li className="px-4 py-2 hover:bg-gray-100">
-                  <p className="font-medium">Department: {session.user.department}</p>
+                  <p className="font-medium">
+                    Department: {session.user.department}
+                  </p>
                 </li>
                 <li
                   className="px-4 py-2 flex items-center cursor-pointer hover:bg-gray-100 text-red-600"
