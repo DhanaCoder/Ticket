@@ -4,12 +4,13 @@ import StatusDisplay from "./StatusDisplay";
 import PriorityDisplay from "./PriorityDisplay";
 import DeleteBlock from "./DeleteBlock";
 import ProgressDisplay from "./ProgressDisplay";
+import Linkify from "react-linkify";
 import Link from "next/link";
 
 const TicketCard = ({ ticket }) => {
   const { data: session } = useSession();
-  const [department, setDepartment] = useState("");
   const [loading, setLoading] = useState(true);
+  const [department, setDepartment] = useState("");
   const [editMode, setEditMode] = useState(false);
 
   useEffect(() => {
@@ -39,76 +40,103 @@ const TicketCard = ({ ticket }) => {
   });
 
   const isAdmin = session && session.user.role === "Admin";
-  const canEdit = session && (session.user.email === ticket.email || isAdmin);
+
+  const handleToggleDescription = () => {
+    setEditMode(!editMode);
+  };
+
+  const truncateDescription = (description) => {
+    const maxLength = 25;
+    if (description.length > maxLength) {
+      return description.substring(0, maxLength) + "...";
+    }
+    return description;
+  };
 
   return (
-    <div className="relative w-69 h-80 overflow-hidden bg-white shadow-lg border-t-4 border-black rounded-lg transition-transform duration-500 transform hover:-translate-y-4 cursor-pointer">
-      <div className="absolute inset-0 bg-gradient-to-br from-white to-white z-0 rounded-lg"></div>
-      <div className="absolute inset-0 z-10 flex flex-col items-center justify-center text-white font-bold text-lg p-4">
-        <p className="text-sm text-gray-900 font-bold mb-2">
-          Created by: {ticket.email}
-          <br />
-          Department: {loading ? "Loading..." : department}
-        </p>
-        <p className="text-sm text-gray-900 font-bold mb-2">
-          Project: {ticket.category || "Loading..."}
-          <br />
-          Assigned To: {ticket.assignedTo.join(", ")}
-        </p>
-        <div className="flex mb-3 gap-2 w-full">
-          <PriorityDisplay priority={ticket.priority} />
-          <div className="ml-auto">
-            {canEdit && <DeleteBlock id={ticket._id} />}
-          </div>
+    <div className="relative w-72 h-80 overflow-hidden bg-white shadow-lg border-t-4 my-2 border-b-4 border-black rounded-lg transition-transform duration-500 transform hover:-translate-y-2 cursor-pointer">
+      <div className="absolute inset-0 bg-gradient-to-br from-white to-gray-100 z-0 rounded-lg"></div>
+      <div className="absolute inset-0 z-10 flex flex-col items-center justify-between text-black font-medium text-base p-4">
+        <div className="w-full text-left">
+          <p className="text-sm text-gray-900 font-bold mb-2">
+            Created by: {ticket.email}
+            <br />
+            Department: {loading ? "Loading..." : department}
+          </p>
+
+          <p className="text-sm text-gray-900 font-bold mb-2">
+            Project: {ticket.category || "Loading..."}
+            <br />
+            Assigned To: {ticket.assignedTo.join(", ")}
+          </p>
         </div>
-        <Link
-          href={`/TicketPage/${ticket._id}`}
-          style={{ display: "contents" }}
-        >
-          <h4 className="mb-1 font-semibold text-lg text-gray-800">
+
+        <div className="text-center mb-3">
+          <h4 className="text-lg font-semibold text-gray-900 mb-1">
             {ticket.title}
           </h4>
-          <hr className="h-px border-0 bg-gray-900 mb-2" />
-          <p className="whitespace-pre-wrap text-gray-700">
-            {editMode
-              ? ticket.description
-              : truncateDescription(ticket.description)}
+          <hr className="border-t border-gray-200" />
+          <p className="whitespace-pre-wrap text-gray-800">
+            <Linkify
+              componentDecorator={(href, text, key) => (
+                <a
+                  href={href}
+                  key={key}
+                  className="text-blue-600 hover:underline"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {text}
+                </a>
+              )}
+            >
+              {editMode
+                ? ticket.description
+                : truncateDescription(ticket.description)}
+            </Linkify>
           </p>
-          <div className="flex-grow"></div>
-          <div className="flex mt-2 w-full">
-            <div className="flex flex-col">
-              <p className="text-xs text-gray-500 my-1">{createdDateTime}</p>
-              <ProgressDisplay progress={ticket.progress} />
-            </div>
-            <div className="ml-auto flex items-end">
-              <StatusDisplay status={ticket.status} />
-            </div>
+        </div>
+
+        <div className="w-full flex items-center justify-between mb-2">
+          <PriorityDisplay priority={ticket.priority} />
+          {session && (session.user.email === ticket.email || isAdmin) && (
+            <DeleteBlock id={ticket._id} />
+          )}
+        </div>
+
+        <div className="w-full flex items-center justify-between">
+          <div className="flex flex-col">
+            <p className="text-xs text-gray-500">{createdDateTime}</p>
+            <ProgressDisplay progress={ticket.progress} />
           </div>
-        </Link>
-        {ticket.status === "done" && session && (
+          <StatusDisplay status={ticket.status} />
+        </div>
+
+        {ticket.status === "done" && ticket.doneBy && (
           <div className="mt-2 text-sm text-gray-600 font-bold">
             <span>Done by: </span>
-            <span className="font-semibold">{session.user.email}</span>
+            <span className="font-semibold">{ticket.doneBy}</span>
           </div>
         )}
-        {isAdmin && (
-          <div
-            className="mt-2 text-sm text-gray-600 font-bold cursor-pointer"
-            onClick={() => setEditMode(!editMode)}
+
+        <div className="flex gap-2 mt-2">
+          <button
+            className="text-sm text-blue-600 font-bold cursor-pointer"
+            onClick={handleToggleDescription}
           >
-            {editMode ? "View" : "Edit"} Description
-          </div>
-        )}
+            {editMode ? "Hide Description" : "View Description"}
+          </button>
+          {ticket._id && (
+            <Link href={`/TicketPage/${ticket._id}`}>
+              <span className="text-sm text-blue-600 font-bold cursor-pointer">
+                Edit
+              </span>
+            </Link>
+          )}
+        </div>
       </div>
     </div>
   );
-};
-
-const truncateDescription = (description) => {
-  const maxLength = 25;
-  return description.length > maxLength
-    ? description.substring(0, maxLength) + "..."
-    : description;
 };
 
 export default TicketCard;
