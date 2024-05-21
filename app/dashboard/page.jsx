@@ -30,15 +30,12 @@ const Dashboard = () => {
       let userTickets = [];
 
       if (session.user.role === "Admin") {
-        // If user is admin, show all tickets
         userTickets = data.tickets;
       } else {
-        // If user is not admin, filter tickets based on assignedTo field
         const userEmail = session.user.email;
         userTickets = data.tickets.filter((ticket) =>
           ticket.assignedTo.includes(userEmail)
         );
-        // Add tickets created by the user to the list
         const createdTickets = data.tickets.filter(
           (ticket) => ticket.email === userEmail
         );
@@ -72,31 +69,19 @@ const Dashboard = () => {
             <div className="mb-4 flex justify-around">
               <button
                 onClick={() => setFilter("All")}
-                className={`btn px-4 py-2 rounded-lg text-sm font-semibold border-collapse border-black border-2 transition-colors duration-300 ${
-                  filter === "All"
-                    ? "bg-blue-500 text-white"
-                    : "bg-gray-200 text-gray-800 hover:bg-gray-300"
-                }`}
+                className={`button ${filter === "All" ? "selected" : ""}`}
               >
                 All
               </button>
               <button
                 onClick={() => setFilter("Pending")}
-                className={`btn px-4 py-2 rounded-lg text-sm font-semibold border-collapse border-black border-2 transition-colors duration-300 ${
-                  filter === "Pending"
-                    ? "bg-blue-500 text-white"
-                    : "bg-gray-200 text-gray-800 hover:bg-gray-300"
-                }`}
+                className={`button ${filter === "Pending" ? "selected" : ""}`}
               >
                 Pending
               </button>
               <button
                 onClick={() => setFilter("Completed")}
-                className={`btn px-4 py-2 rounded-lg border-collapse border-black border-2 text-sm font-semibold transition-colors duration-300 ${
-                  filter === "Completed"
-                    ? "bg-blue-500 text-white"
-                    : "bg-gray-200 text-gray-800 hover:bg-gray-300"
-                }`}
+                className={`button ${filter === "Completed" ? "selected" : ""}`}
               >
                 Completed
               </button>

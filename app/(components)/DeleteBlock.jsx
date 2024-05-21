@@ -17,11 +17,16 @@ const DeleteBlock = ({ id }) => {
   };
 
   return (
-    <FontAwesomeIcon
-      icon={faX}
-      className=" text-red-400 hover:cursor-pointer hover:text-red-200"
+    <div
+      className="rounded-lg border border-red-500 p-1"
       onClick={deleteTicket}
-    />
+      style={{ display: "inline-block" }}
+    >
+      <FontAwesomeIcon
+        icon={faX}
+        className="text-red-500 hover:cursor-pointer hover:text-red-200"
+      />
+    </div>
   );
 };
 
