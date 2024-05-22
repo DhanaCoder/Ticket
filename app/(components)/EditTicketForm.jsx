@@ -37,7 +37,7 @@ const EditTicketForm = ({ ticket }) => {
   const [formData, setFormData] = useState(startingTicketData);
   const [projects, setProjects] = useState([]);
   const [teamMembers, setTeamMembers] = useState([]);
-  const [fileInput, setFileInput] = useState(null);
+  
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -152,14 +152,6 @@ const EditTicketForm = ({ ticket }) => {
     }
   };
 
-  const handleFileChange = (e) => {
-    const files = Array.from(e.target.files);
-    setFormData((prevState) => ({
-      ...prevState,
-      attachments: [...prevState.attachments, ...files],
-    }));
-  };
-
   const handleMultiSelectChange = (selectedOptions) => {
     const selectedEmails = selectedOptions.map((option) => option.value);
     if (selectedEmails.length > 10) {
@@ -246,30 +238,11 @@ const EditTicketForm = ({ ticket }) => {
           id="description"
           name="description"
           onChange={handleChange}
-          required
+          required={true}
           value={formData.description}
           rows="5"
+          className="p-2 border rounded"
         />
-
-        {/* File input for uploading images */}
-        <label htmlFor="file">Upload Image(s)</label>
-        <input
-          type="file"
-          id="file"
-          name="file"
-          multiple
-          accept="image/*"
-          ref={(input) => setFileInput(input)}
-          onChange={handleFileChange}
-        />
-        {/* Display uploaded images */}
-        <div>
-          {formData.attachments.map((file, index) => (
-            <div key={index}>
-              <img src={URL.createObjectURL(file)} alt={`Image ${index + 1}`} />
-            </div>
-          ))}
-        </div>
 
         {!EDITMODE ? (
           <>
