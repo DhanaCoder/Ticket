@@ -125,19 +125,11 @@ const TicketCard = ({ ticket }) => {
         </div>
 
         {ticket.status === "done" && session && (
-<<<<<<< HEAD
-          <div className="mt-2 text-sm text-gray-600">
-            <span>Done by: </span>
-            <span className="font-semibold">{session.user.username}</span>
-          </div>
-        )}
-=======
         <div className="mt-2 text-sm text-gray-600">
           <span>Done by: </span>
           <span className="font-semibold">{session.user.username}</span>
         </div>
       )}
->>>>>>> ab94a405719b24006cc2fea1f342ebe2cd27e903
 
         <div className="flex gap-2 mt-2">
           <button

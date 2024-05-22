@@ -199,17 +199,11 @@ const EditTicketForm = ({ ticket }) => {
         }
         toast.success("Ticket created successfully!");
       }
-<<<<<<< HEAD
-
-      router.refresh();
-      router.push("/dashboard");
-=======
   
       setTimeout(() => {
         router.refresh();
         router.push("/dashboard");
       }, 2000);
->>>>>>> ab94a405719b24006cc2fea1f342ebe2cd27e903
     } catch (error) {
       console.error("Error submitting ticket:", error);
       toast.error("Failed to submit ticket.");
