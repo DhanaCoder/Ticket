@@ -40,7 +40,7 @@ const EditTicketForm = ({ ticket }) => {
     const fetchProjects = async () => {
       try {
         const res = await fetch(
-          "https://stagingapi.rekonsys.tech/all-projects"
+          "https://api.rekonsys.tech/all-projects"
         );
         if (!res.ok) {
           throw new Error("Failed to fetch projects");
@@ -104,7 +104,6 @@ const EditTicketForm = ({ ticket }) => {
         // Check if the selected project has team members
         if (selectedProject.teamMembers.length > 0) {
           setTeamMembers(selectedProject.teamMembers);
-          
         } else {
           try {
             const res = await fetch("https://api.rekonsys.tech/auth/users");
@@ -142,7 +141,7 @@ const EditTicketForm = ({ ticket }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     try {
       if (EDITMODE) {
         const res = await fetch(`/api/Tickets/${ticket._id}`, {
@@ -158,7 +157,10 @@ const EditTicketForm = ({ ticket }) => {
       } else {
         const formDataWithDoneBy = {
           ...formData,
-          doneBy: formData.status === "done" ? { email: session?.user?.email, name: session?.user?.name } : null,
+          doneBy:
+            formData.status === "done"
+              ? { email: session?.user?.email, name: session?.user?.name }
+              : null,
         };
         const res = await fetch("/api/Tickets", {
           method: "POST",
@@ -171,14 +173,13 @@ const EditTicketForm = ({ ticket }) => {
           throw new Error("Failed to create ticket");
         }
       }
-  
+
       router.refresh();
       router.push("/dashboard");
     } catch (error) {
       console.error("Error submitting ticket:", error);
     }
   };
-  
 
   return (
     <div className="flex justify-center">
@@ -250,7 +251,7 @@ const EditTicketForm = ({ ticket }) => {
 
         <label>Priority</label>
         <div className="flex gap-2">
-          {[1, 2, 3, 4, 5].map((priority) => (
+          {[5, 4, 3, 2, 1].map((priority) => (
             <div key={priority} className="flex items-center gap-1">
               <input
                 id={`priority-${priority}`}

@@ -17,11 +17,21 @@ export async function POST(req) {
     const body = await req.json();
     const ticketData = body.formData;
 
+    // Check if the ticket status is "done"
+    if (ticketData.status === "done") {
+      // Populate the "doneBy" field with the user's email
+      ticketData.doneBy = ticketData.email; // Assuming "email" field contains the user's email
+    } else {
+      // If status is not "done", set "doneBy" to null or an empty string as per your schema
+      ticketData.doneBy = null; // Or ticketData.doneBy = ""; depending on your preference
+    }
+
+    // Create the ticket with the updated data
     await Ticket.create(ticketData);
 
     return NextResponse.json({ message: "Ticket Created" }, { status: 201 });
   } catch (err) {
-    console.log(err);
+    console.error(err);
     return NextResponse.json({ message: "Error", err }, { status: 500 });
   }
 }

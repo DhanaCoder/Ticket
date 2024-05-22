@@ -46,6 +46,10 @@ const ticketSchema = new Schema(
       type: Boolean,
       default: true,
     },
+    doneby: {
+      type: String,
+      required: true,
+    },
   },
   {
     timestamps: true,
