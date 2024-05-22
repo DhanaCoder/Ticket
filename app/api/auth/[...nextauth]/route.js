@@ -1,42 +1,45 @@
-import { connectMongoDB } from "@/lib/mongodb";
-import Person from "@/app/models/User";
-import NextAuth from "next-auth/next";
+import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import bcrypt from "bcryptjs";
 
 export const authOptions = {
   providers: [
     CredentialsProvider({
       name: "credentials",
-      credentials: {},
-
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
+      },
       async authorize(credentials) {
         const { email, password } = credentials;
 
         try {
-          await connectMongoDB();
-          const user = await Person.findOne({ email });
+          // Fetch user data from the external login API
+          const response = await fetch("https://api.rekonsys.tech/auth/login", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ email, password }),
+          });
 
-          if (!user) {
-            return null;
+          if (!response.ok) {
+            throw new Error("Invalid credentials");
           }
 
-          const passwordsMatch = await bcrypt.compare(password, user.password);
+          const data = await response.json();
+          const user = data.user;
 
-          if (!passwordsMatch) {
-            return null;
-          }
-
-          // Return user object to include username, role, and department
+          // Return user object to include additional details
           return {
             id: user._id,
             email: user.email,
-            username: user.username,
+            username: `${user.firstName} ${user.lastName}`,
             role: user.role,
             department: user.department,
+            position: user.position,
           };
         } catch (error) {
-          console.log("Error: ", error);
+          console.error("Error authenticating user:", error.message);
           return null;
         }
       },
@@ -47,24 +50,24 @@ export const authOptions = {
   },
   secret: process.env.NEXTAUTH_SECRET,
   pages: {
-    signIn: "/",
+    signIn: "/auth/signin",
   },
   callbacks: {
     async jwt({ token, user }) {
-      // This function is called whenever a JWT is created or updated.
       if (user) {
         token.username = user.username;
         token.role = user.role;
         token.department = user.department;
+        token.position = user.position;
       }
       return token;
     },
     async session({ session, token }) {
-      // This function is called whenever a session is checked.
       if (token) {
         session.user.username = token.username;
         session.user.role = token.role;
         session.user.department = token.department;
+        session.user.position = token.position; // Corrected this line
       }
       return session;
     },

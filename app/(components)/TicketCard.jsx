@@ -16,10 +16,17 @@ const TicketCard = ({ ticket }) => {
   useEffect(() => {
     const fetchDepartment = async () => {
       try {
-        const res = await fetch(`/api/register/${ticket.email}`);
+        const res = await fetch(
+          `https://api.rekonsys.tech/auth/users?email=${ticket.email}`
+        );
         if (!res.ok) throw new Error("Failed to fetch user details");
         const data = await res.json();
-        setDepartment(data.department);
+        const user = data.find((user) => user.email === ticket.email);
+        if (user) {
+          setDepartment(user.department);
+        } else {
+          throw new Error("User not found");
+        }
       } catch (error) {
         console.error("Error fetching user details:", error);
       } finally {
@@ -54,7 +61,7 @@ const TicketCard = ({ ticket }) => {
   };
 
   return (
-    <div className="relative w-72 h-80 overflow-hidden bg-white shadow-lg border-t-4 my-2 border-b-4 border-black rounded-lg transition-transform duration-500 transform hover:-translate-y-2 cursor-pointer">
+    <div className="relative w-72 h-96 overflow-hidden bg-white shadow-lg border-t-4 my-2 border-b-4 border-black rounded-lg transition-transform duration-500 transform hover:-translate-y-2 cursor-pointer">
       <div className="absolute inset-0 bg-gradient-to-br from-white to-gray-100 z-0 rounded-lg"></div>
       <div className="absolute inset-0 z-10 flex flex-col items-center justify-between text-black font-medium text-base p-4">
         <div className="w-full text-left">
@@ -95,6 +102,11 @@ const TicketCard = ({ ticket }) => {
                 : truncateDescription(ticket.description)}
             </Linkify>
           </p>
+          {ticket.status === "done" && ticket.doneBy && (
+            <p className="text-sm text-green-600 font-bold mt-2">
+              Done by: {ticket.doneBy}
+            </p>
+          )}
         </div>
 
         <div className="w-full flex items-center justify-between mb-2">
@@ -113,10 +125,9 @@ const TicketCard = ({ ticket }) => {
         </div>
 
         {ticket.status === "done" && ticket.doneBy && (
-          <div className="mt-2 text-sm text-gray-600 font-bold">
-            <span>Done by: </span>
-            <span className="font-semibold">{ticket.doneBy}</span>
-          </div>
+          <p className="text-sm text-green-600 font-bold mt-2">
+            Done by: {ticket.doneBy}
+          </p>
         )}
 
         <div className="flex gap-2 mt-2">

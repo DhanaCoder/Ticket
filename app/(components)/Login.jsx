@@ -1,20 +1,21 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [showToast, setShowToast] = useState(false);
-
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
+    setError("");
 
     try {
       const res = await signIn("credentials", {
@@ -25,19 +26,15 @@ export default function LoginForm() {
 
       if (res.error) {
         setError("Invalid Credentials");
+        setIsLoading(false);
         return;
       }
 
-      // Show toast on successful login
-      setShowToast(true);
-
-      // Redirect to dashboard after 3 seconds
-      setTimeout(() => {
-        setShowToast(false);
-        router.replace("dashboard");
-      }, 3000);
+      router.replace("/dashboard");
     } catch (error) {
-      console.log(error);
+      console.error("Error signing in:", error);
+      setError("An error occurred. Please try again.");
+      setIsLoading(false);
     }
   };
 
@@ -49,16 +46,22 @@ export default function LoginForm() {
         <form onSubmit={handleSubmit} className="flex flex-col gap-3">
           <input
             onChange={(e) => setEmail(e.target.value)}
-            type="text"
+            type="email"
             placeholder="Email"
+            required
           />
           <input
             onChange={(e) => setPassword(e.target.value)}
             type="password"
             placeholder="Password"
+            required
           />
-          <button className="bg-green-600 text-white font-bold cursor-pointer px-6 py-2">
-            Login
+          <button
+            type="submit"
+            className="bg-green-600 text-white font-bold cursor-pointer px-6 py-2"
+            disabled={isLoading}
+          >
+            {isLoading ? "Logging in..." : "Login"}
           </button>
           {error && (
             <div className="bg-red-500 text-white w-fit text-sm py-1 px-3 rounded-md mt-2">
@@ -66,16 +69,11 @@ export default function LoginForm() {
             </div>
           )}
 
-          <Link className="text-sm mt-3 text-right" href={"/register"}>
+          <Link href="/register" className="text-sm mt-3 text-right">
             Don't have an account? <span className="underline">Register</span>
           </Link>
         </form>
       </div>
-      {showToast && (
-        <div className="fixed bottom-5 right-5 bg-green-600 text-white px-4 py-2 rounded-md">
-          Login successful! Redirecting to dashboard...
-        </div>
-      )}
     </div>
   );
 }

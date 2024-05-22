@@ -8,8 +8,7 @@ const EditTicketForm = ({ ticket }) => {
   const EDITMODE = ticket._id !== "new";
   const router = useRouter();
   const { data: session } = useSession();
-  
-  
+
   const startingTicketData = {
     title: "",
     description: "",
@@ -40,7 +39,9 @@ const EditTicketForm = ({ ticket }) => {
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const res = await fetch("https://stagingapi.rekonsys.tech/all-projects");
+        const res = await fetch(
+          "https://stagingapi.rekonsys.tech/all-projects"
+        );
         if (!res.ok) {
           throw new Error("Failed to fetch projects");
         }
@@ -59,19 +60,24 @@ const EditTicketForm = ({ ticket }) => {
       if (!EDITMODE) return;
 
       try {
-        const res = await fetch(`/api/register?email=${ticket.email}`);
+        const res = await fetch(`https://api.rekonsys.tech/auth/users`);
         if (!res.ok) {
           throw new Error("Failed to fetch user details");
         }
         const data = await res.json();
         console.log("User department data:", data); // Log the response
-        if (data && data.department) {
-          setFormData((prevState) => ({
-            ...prevState,
-            department: data.department,
-          }));
+        if (data && data.length > 0) {
+          const user = data.find((user) => user.email === ticket.email);
+          if (user && user.department) {
+            setFormData((prevState) => ({
+              ...prevState,
+              department: user.department,
+            }));
+          } else {
+            console.error("Department not found for the user");
+          }
         } else {
-          console.error("Department not found for the user");
+          console.error("No users found");
         }
       } catch (error) {
         console.error("Error fetching user department:", error);
@@ -98,15 +104,16 @@ const EditTicketForm = ({ ticket }) => {
         // Check if the selected project has team members
         if (selectedProject.teamMembers.length > 0) {
           setTeamMembers(selectedProject.teamMembers);
+          
         } else {
           try {
-            const res = await fetch("http://localhost:3000/api/register");
+            const res = await fetch("https://api.rekonsys.tech/auth/users");
             if (!res.ok) {
               throw new Error("Failed to fetch team members");
             }
             const data = await res.json();
-            if (Array.isArray(data.users) && data.users.length > 0) {
-              const userEmails = data.users.map((user) => ({
+            if (Array.isArray(data) && data.length > 0) {
+              const userEmails = data.map((user) => ({
                 value: user.email,
                 label: user.email,
               }));
@@ -135,7 +142,7 @@ const EditTicketForm = ({ ticket }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     try {
       if (EDITMODE) {
         const res = await fetch(`/api/Tickets/${ticket._id}`, {
@@ -149,9 +156,13 @@ const EditTicketForm = ({ ticket }) => {
           throw new Error("Failed to update ticket");
         }
       } else {
+        const formDataWithDoneBy = {
+          ...formData,
+          doneBy: formData.status === "done" ? { email: session?.user?.email, name: session?.user?.name } : null,
+        };
         const res = await fetch("/api/Tickets", {
           method: "POST",
-          body: JSON.stringify({ formData }),
+          body: JSON.stringify({ formData: formDataWithDoneBy }), // Submit formDataWithDoneBy instead of formData
           headers: {
             "Content-Type": "application/json",
           },
@@ -160,13 +171,14 @@ const EditTicketForm = ({ ticket }) => {
           throw new Error("Failed to create ticket");
         }
       }
-
+  
       router.refresh();
       router.push("/dashboard");
     } catch (error) {
       console.error("Error submitting ticket:", error);
     }
   };
+  
 
   return (
     <div className="flex justify-center">
