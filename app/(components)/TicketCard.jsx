@@ -124,11 +124,12 @@ const TicketCard = ({ ticket }) => {
           <StatusDisplay status={ticket.status} />
         </div>
 
-        {ticket.status === "done" && ticket.doneBy && (
-          <p className="text-sm text-green-600 font-bold mt-2">
-            Done by: {ticket.doneBy}
-          </p>
-        )}
+        {ticket.status === "done" && session && (
+        <div className="mt-2 text-sm text-gray-600">
+          <span>Done by: </span>
+          <span className="font-semibold">{session.user.username}</span>
+        </div>
+      )}
 
         <div className="flex gap-2 mt-2">
           <button

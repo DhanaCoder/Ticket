@@ -3,6 +3,8 @@ import { useRouter } from "next/navigation";
 import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import Select from "react-select";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const EditTicketForm = ({ ticket }) => {
   const EDITMODE = ticket._id !== "new";
@@ -89,12 +91,34 @@ const EditTicketForm = ({ ticket }) => {
 
   const handleChange = async (e) => {
     const { name, value } = e.target;
-
+  
+    // Update the form data
     setFormData((prevState) => ({
       ...prevState,
       [name]: value,
     }));
-
+  
+    // If the status is "done", set progress to 100
+    if (name === "status" && value === "done") {
+      setFormData((prevState) => ({
+        ...prevState,
+        progress: 100,
+      }));
+    } else if (name === "status" && value === "started") {
+      // If the status is not "done", reset progress to 0
+      setFormData((prevState) => ({
+        ...prevState,
+        progress: 50,
+      }));
+  }
+     else if (name === "status" && value !== "done") {
+      // If the status is not "done", reset progress to 0
+      setFormData((prevState) => ({
+        ...prevState,
+        progress: 0,
+      }));
+    }
+     
     // Update team members when a project is selected
     if (name === "category") {
       const selectedProject = projects.find(
@@ -155,6 +179,7 @@ const EditTicketForm = ({ ticket }) => {
         if (!res.ok) {
           throw new Error("Failed to update ticket");
         }
+        toast.success("Ticket updated successfully!");
       } else {
         const formDataWithDoneBy = {
           ...formData,
@@ -170,18 +195,22 @@ const EditTicketForm = ({ ticket }) => {
         if (!res.ok) {
           throw new Error("Failed to create ticket");
         }
+        toast.success("Ticket created successfully!");
       }
   
-      router.refresh();
-      router.push("/dashboard");
+      setTimeout(() => {
+        router.refresh();
+        router.push("/dashboard");
+      }, 2000);
     } catch (error) {
       console.error("Error submitting ticket:", error);
+      toast.error("Failed to submit ticket.");
     }
   };
-  
 
   return (
     <div className="flex justify-center">
+      <ToastContainer />
       <form
         onSubmit={handleSubmit}
         method="post"

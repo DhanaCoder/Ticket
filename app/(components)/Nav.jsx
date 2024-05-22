@@ -6,6 +6,7 @@ import {
   faTicket,
   faUser,
   faSignOutAlt,
+  faBell, // Import the notification icon
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Link from "next/link";
@@ -21,7 +22,11 @@ const Nav = () => {
   };
 
   const handleCreateTicketClick = (e) => {
-    if (session.user.role !== "Admin" && session.user.position !== "Testers/QA Engineers" && session.user.department !== "Quality Assurance and Testing") {
+    if (
+      session.user.role !== "Admin" &&
+      session.user.position !== "Testers/QA Engineers" &&
+      session.user.department !== "Quality Assurance and Testing"
+    ) {
       e.preventDefault();
       setToastMessage("You don't have permission to create a ticket.");
     }
@@ -57,43 +62,51 @@ const Nav = () => {
               />
             </Link>
           </div>
-          <div className="relative">
-            <button
-              className="flex items-center text-white font-bold px-4 py-2 bg-gray-700 rounded-md hover:bg-gray-600"
-              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            >
-              <FontAwesomeIcon icon={faUser} className="mr-2 text-xl" />
-              Hi, {session.user.username}
-            </button>
-            {isDropdownOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-md overflow-hidden z-50">
-                <ul className="text-gray-700">
-                  <li className="px-4 py-2 hover:bg-gray-100">
-                    <p className="font-medium">Email: {session.user.email}</p>
-                  </li>
-                  <li className="px-4 py-2 hover:bg-gray-100">
-                    <p className="font-medium">Role: {session.user.role}</p>
-                  </li>
-                  <li className="px-4 py-2 hover:bg-gray-100">
-                    <p className="font-medium">
-                      Department: {session.user.department}
-                    </p>
+          <div className="flex items-center">
+            <div className="mr-4">
+              <FontAwesomeIcon
+                icon={faBell}
+                className="text-white text-xl cursor-pointer"
+              />
+            </div>
+            <div className="relative">
+              <button
+                className="flex items-center text-white font-bold px-4 py-2 bg-gray-700 rounded-md hover:bg-gray-600"
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              >
+                <FontAwesomeIcon icon={faUser} className="mr-2 text-xl" />
+                Hi, {session.user.username}
+              </button>
+              {isDropdownOpen && (
+                <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-md overflow-hidden z-50">
+                  <ul className="text-gray-700">
                     <li className="px-4 py-2 hover:bg-gray-100">
-                    <p className="font-medium">
-                      Position: {session.user.position}
-                    </p>
+                      <p className="font-medium">Email: {session.user.email}</p>
                     </li>
-                  </li>
-                  <li
-                    className="px-4 py-2 flex items-center cursor-pointer hover:bg-gray-100 text-red-600"
-                    onClick={handleSignOut}
-                  >
-                    <FontAwesomeIcon icon={faSignOutAlt} className="mr-2" />
-                    <span>Log Out</span>
-                  </li>
-                </ul>
-              </div>
-            )}
+                    <li className="px-4 py-2 hover:bg-gray-100">
+                      <p className="font-medium">Role: {session.user.role}</p>
+                    </li>
+                    <li className="px-4 py-2 hover:bg-gray-100">
+                      <p className="font-medium">
+                        Department: {session.user.department}
+                      </p>
+                    </li>
+                    <li className="px-4 py-2 hover:bg-gray-100">
+                      <p className="font-medium">
+                        Position: {session.user.position}
+                      </p>
+                    </li>
+                    <li
+                      className="px-4 py-2 flex items-center cursor-pointer hover:bg-gray-100 text-red-600"
+                      onClick={handleSignOut}
+                    >
+                      <FontAwesomeIcon icon={faSignOutAlt} className="mr-2" />
+                      <span>Log Out</span>
+                    </li>
+                  </ul>
+                </div>
+              )}
+            </div>
           </div>
         </nav>
         {toastMessage && (
