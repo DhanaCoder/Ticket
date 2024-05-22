@@ -37,12 +37,13 @@ const EditTicketForm = ({ ticket }) => {
   const [formData, setFormData] = useState(startingTicketData);
   const [projects, setProjects] = useState([]);
   const [teamMembers, setTeamMembers] = useState([]);
+  const [fileInput, setFileInput] = useState(null);
 
   useEffect(() => {
     const fetchProjects = async () => {
       try {
         const res = await fetch(
-          "https://api.rekonsys.tech/all-projects"
+          "https://stagingapi.rekonsys.tech/all-projects"
         );
         if (!res.ok) {
           throw new Error("Failed to fetch projects");
@@ -91,41 +92,40 @@ const EditTicketForm = ({ ticket }) => {
 
   const handleChange = async (e) => {
     const { name, value } = e.target;
-  
+
     // Update the form data
     setFormData((prevState) => ({
       ...prevState,
       [name]: value,
     }));
-  
+
     // If the status is "done", set progress to 100
     if (name === "status" && value === "done") {
       setFormData((prevState) => ({
         ...prevState,
         progress: 100,
+        doneBy: { email: session?.user?.email, name: session?.user?.name }, // Set doneBy
       }));
     } else if (name === "status" && value === "started") {
-      // If the status is not "done", reset progress to 0
       setFormData((prevState) => ({
         ...prevState,
         progress: 50,
+        doneBy: null, // Reset doneBy
       }));
-  }
-     else if (name === "status" && value !== "done") {
-      // If the status is not "done", reset progress to 0
+    } else if (name === "status" && value !== "done") {
       setFormData((prevState) => ({
         ...prevState,
         progress: 0,
+        doneBy: null, // Reset doneBy
       }));
     }
-     
+
     // Update team members when a project is selected
     if (name === "category") {
       const selectedProject = projects.find(
         (project) => project.projectname === value
       );
       if (selectedProject) {
-        // Check if the selected project has team members
         if (selectedProject.teamMembers.length > 0) {
           setTeamMembers(selectedProject.teamMembers);
         } else {
@@ -152,6 +152,14 @@ const EditTicketForm = ({ ticket }) => {
     }
   };
 
+  const handleFileChange = (e) => {
+    const files = Array.from(e.target.files);
+    setFormData((prevState) => ({
+      ...prevState,
+      attachments: [...prevState.attachments, ...files],
+    }));
+  };
+
   const handleMultiSelectChange = (selectedOptions) => {
     const selectedEmails = selectedOptions.map((option) => option.value);
     if (selectedEmails.length > 10) {
@@ -167,6 +175,15 @@ const EditTicketForm = ({ ticket }) => {
     e.preventDefault();
 
     try {
+      const formDataWithDoneBy = {
+        ...formData,
+        email: session?.user?.email || formData.email, // Ensure email is set
+        doneBy:
+          formData.status === "done" && formData.progress === 100
+            ? { email: session?.user?.email, name: session?.user?.name }
+            : null,
+      };
+
       if (EDITMODE) {
         const res = await fetch(`/api/Tickets/${ticket._id}`, {
           method: "PUT",
@@ -180,16 +197,9 @@ const EditTicketForm = ({ ticket }) => {
         }
         toast.success("Ticket updated successfully!");
       } else {
-        const formDataWithDoneBy = {
-          ...formData,
-          doneBy:
-            formData.status === "done"
-              ? { email: session?.user?.email, name: session?.user?.name }
-              : null,
-        };
         const res = await fetch("/api/Tickets", {
           method: "POST",
-          body: JSON.stringify({ formData: formDataWithDoneBy }), // Submit formDataWithDoneBy instead of formData
+          body: JSON.stringify({ formData: formDataWithDoneBy }),
           headers: {
             "Content-Type": "application/json",
           },
@@ -199,7 +209,7 @@ const EditTicketForm = ({ ticket }) => {
         }
         toast.success("Ticket created successfully!");
       }
-  
+
       setTimeout(() => {
         router.refresh();
         router.push("/dashboard");
@@ -236,13 +246,32 @@ const EditTicketForm = ({ ticket }) => {
           id="description"
           name="description"
           onChange={handleChange}
-          required={true}
+          required
           value={formData.description}
           rows="5"
-          className="p-2 border rounded"
         />
 
-        {!EDITMODE && (
+        {/* File input for uploading images */}
+        <label htmlFor="file">Upload Image(s)</label>
+        <input
+          type="file"
+          id="file"
+          name="file"
+          multiple
+          accept="image/*"
+          ref={(input) => setFileInput(input)}
+          onChange={handleFileChange}
+        />
+        {/* Display uploaded images */}
+        <div>
+          {formData.attachments.map((file, index) => (
+            <div key={index}>
+              <img src={URL.createObjectURL(file)} alt={`Image ${index + 1}`} />
+            </div>
+          ))}
+        </div>
+
+        {!EDITMODE ? (
           <>
             <label htmlFor="category">Project</label>
             <select
@@ -260,6 +289,18 @@ const EditTicketForm = ({ ticket }) => {
                 </option>
               ))}
             </select>
+          </>
+        ) : (
+          <>
+            <label htmlFor="category">Project</label>
+            <input
+              id="category"
+              name="category"
+              type="text"
+              value={formData.category}
+              className="p-2 border rounded"
+              readOnly
+            />
           </>
         )}
 

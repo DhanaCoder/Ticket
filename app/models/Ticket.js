@@ -46,9 +46,19 @@ const ticketSchema = new Schema(
       type: Boolean,
       default: true,
     },
-    doneby: {
-      type: String,
-      required: true,
+    doneBy: {
+      email: {
+        type: String,
+        required: function () {
+          return this.status === "done";
+        },
+      },
+      name: {
+        type: String,
+        required: function () {
+          return this.status === "done";
+        },
+      },
     },
   },
   {
