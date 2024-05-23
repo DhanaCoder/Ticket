@@ -4,6 +4,8 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
@@ -26,20 +28,26 @@ export default function LoginForm() {
 
       if (res.error) {
         setError("Invalid Credentials");
+        toast.error("Invalid Credentials");
         setIsLoading(false);
         return;
       }
 
-      router.replace("/dashboard");
+      toast.success("Logged in successfully!");
+      setTimeout(() => {
+        router.replace("/dashboard");
+      }, 2000);
     } catch (error) {
       console.error("Error signing in:", error);
       setError("An error occurred. Please try again.");
+      toast.error("An error occurred. Please try again.");
       setIsLoading(false);
     }
   };
 
   return (
     <div className="grid place-items-center h-screen">
+      <ToastContainer />
       <div className="shadow-lg p-5 rounded-lg border-t-4 border-green-400">
         <h1 className="text-xl font-bold my-4">Login</h1>
 
@@ -63,15 +71,6 @@ export default function LoginForm() {
           >
             {isLoading ? "Logging in..." : "Login"}
           </button>
-          {error && (
-            <div className="bg-red-500 text-white w-fit text-sm py-1 px-3 rounded-md mt-2">
-              {error}
-            </div>
-          )}
-
-          <Link href="/register" className="text-sm mt-3 text-right">
-            Don't have an account? <span className="underline">Register</span>
-          </Link>
         </form>
       </div>
     </div>

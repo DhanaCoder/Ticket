@@ -48,19 +48,21 @@ const Nav = () => {
     return (
       <>
         <nav className="flex justify-between items-center w-full bg-gray-800 p-4">
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-3">
             <Link href="/dashboard">
               <FontAwesomeIcon
                 icon={faHome}
-                className="text-white text-xl cursor-pointer"
+                className="text-white text-xl cursor-pointer hover:bg-yellow-300"
               />
             </Link>
+            <p className="text-blue-300 font-bold">HOME</p>
             <Link href="/TicketPage/new" onClick={handleCreateTicketClick}>
               <FontAwesomeIcon
                 icon={faTicket}
-                className="text-white text-xl cursor-pointer"
+                className="text-white text-xl cursor-pointer hover:bg-green-300"
               />
             </Link>
+            <p className="text-blue-300 font-bold">NEW-TICKET</p>
           </div>
           <div className="flex items-center">
             <div className="mr-4">

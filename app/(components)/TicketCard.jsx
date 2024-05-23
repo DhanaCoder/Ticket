@@ -62,21 +62,24 @@ const TicketCard = ({ ticket }) => {
 
   return (
     <>
-      <div className="relative w-72 h-96 overflow-hidden bg-white shadow-lg border-t-4 my-2 border-b-4 border-black rounded-lg transition-transform duration-500 transform hover:-translate-y-2 cursor-pointer">
+      <div className="relative w-80 h-96 overflow-hidden bg-white shadow-lg border-t-4 my-2 border-b-4 border-black rounded-lg transition-transform duration-500 transform hover:-translate-y-2 cursor-pointer">
         <div className="absolute inset-0 bg-gradient-to-br from-white to-gray-100 z-0 rounded-lg"></div>
         <div className="absolute inset-0 z-10 flex flex-col items-center justify-between text-black font-medium text-base p-4">
-          <div className="w-full text-left">
-            <p className="text-sm text-gray-900 font-bold mb-2">
-              Created by: {ticket.email}
+          <div className="w-full text-left mt-4 mb-4 ml-4 mr-4">
+            <p className="text-sm text-gray-900 mb-2">
+              <span className="font-bold my-2">Created by:</span> {ticket.email}
               <br />
-              Department: {loading ? "Loading..." : department}
-            </p>
-            <p className="text-sm text-gray-900 font-bold mb-2">
-              Project: {ticket.category || "Loading..."}
+              <span className="font-bold">Department:</span>{" "}
+              {loading ? "Loading..." : department}
+              <br/>
+              <span className="font-bold">Project:</span>{" "}
+              {ticket.category || "Loading..."}
               <br />
-              Assigned To: {ticket.assignedTo.join(", ")}
+              <span className="font-bold">Assigned To:</span>{" "}
+              {ticket.assignedTo.join(", ")}
             </p>
           </div>
+
           <div className="text-center mb-3">
             <h4 className="text-lg font-semibold text-gray-900 mb-1">
               {ticket.title}
@@ -129,13 +132,14 @@ const TicketCard = ({ ticket }) => {
             >
               View Description
             </button>
-            {ticket._id && ticket.status !== "done" && ( // Check if ticket status is not "done"
-              <Link href={`/TicketPage/${ticket._id}`}>
-                <span className="text-sm text-blue-600 font-bold cursor-pointer">
-                  Edit
-                </span>
-              </Link>
-            )}
+            {ticket._id &&
+              ticket.status !== "done" && ( // Check if ticket status is not "done"
+                <Link href={`/TicketPage/${ticket._id}`}>
+                  <span className="text-sm text-blue-600 font-bold cursor-pointer">
+                    Edit
+                  </span>
+                </Link>
+              )}
           </div>
         </div>
       </div>
