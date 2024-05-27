@@ -31,15 +31,12 @@ const Dashboard = () => {
       let userTickets = [];
 
       if (session.user.role === "Admin") {
-        // If user is admin, show all tickets
         userTickets = data.tickets;
       } else {
-        // If user is not admin, filter tickets based on assignedTo field
         const userEmail = session.user.email;
         userTickets = data.tickets.filter((ticket) =>
           ticket.assignedTo.includes(userEmail)
         );
-        // Add tickets created by the user to the list
         const createdTickets = data.tickets.filter(
           (ticket) => ticket.email === userEmail
         );
@@ -77,10 +74,9 @@ const Dashboard = () => {
       {session ? (
         <div>
           <Nav />
-
-          <div className="flex  mx-10 rounded bg-white">
+          <div className="flex mx-4 my-4 rounded bg-white p-2 lg:max-w-md lg:mx-auto">
             <input
-              className="border br-2 bg-transparent px-4 py-1 text-gray-400 outline-none focus:outline-none"
+              className="border br-2 bg-transparent px-4 py-2 text-gray-700 outline-none flex-grow"
               type="search"
               name="search"
               placeholder="Search..."
@@ -89,7 +85,7 @@ const Dashboard = () => {
             />
             <button
               type="submit"
-              className="m-2 rounded bg-blue-600 px-4 py-2 text-white"
+              className="m-2 rounded bg-blue-600 p-2 text-white flex items-center"
             >
               <svg
                 className="fill-current h-6 w-6"
@@ -104,10 +100,10 @@ const Dashboard = () => {
               </svg>
             </button>
           </div>
-          <div className="mb-4 flex justify-around">
+          <div className="mb-4 flex flex-wrap lg:flex-nowrap justify-around gap-2 mx-4">
             <button
               onClick={() => setFilter("All")}
-              className={`button btn px-4 py-2 rounded-lg text-sm font-bold border-collapse border-black border-2 transition-colors duration-300 ${
+              className={`button btn px-3 py-2 rounded-lg text-sm font-bold border-2 transition-colors duration-300 ${
                 filter === "All"
                   ? "bg-blue-200 text-white"
                   : "bg-gray-200 text-gray-800 hover:bg-gray-300"
@@ -117,7 +113,7 @@ const Dashboard = () => {
             </button>
             <button
               onClick={() => setFilter("Pending")}
-              className={`button btn px-4 py-2 rounded-lg text-sm font-semibold border-collapse border-black border-2 transition-colors duration-300 ${
+              className={`button btn px-3 py-2 rounded-lg text-sm font-semibold border-2 transition-colors duration-300 ${
                 filter === "Pending"
                   ? "bg-blue-200 text-white"
                   : "bg-gray-200 text-gray-800 hover:bg-gray-300"
@@ -127,7 +123,7 @@ const Dashboard = () => {
             </button>
             <button
               onClick={() => setFilter("Completed")}
-              className={`button btn px-4 py-2 rounded-lg border-collapse border-black border-2 text-sm font-semibold transition-colors duration-300 ${
+              className={`button btn px-3 py-2 rounded-lg border-2 text-sm font-semibold transition-colors duration-300 ${
                 filter === "Completed"
                   ? "bg-blue-200 text-white"
                   : "bg-gray-200 text-gray-800 hover:bg-gray-300"
@@ -136,10 +132,10 @@ const Dashboard = () => {
               Completed
             </button>
           </div>
-          {searchedCategories?.map((uniqueCategory, categoryIndex) => (
-            <div key={categoryIndex} className="mb-4">
-              <h2 className="text-xl font-bold">{uniqueCategory}</h2>
-              <div className="grid grid-cols-3 gap-1">
+          {searchedCategories.map((uniqueCategory, categoryIndex) => (
+            <div key={categoryIndex} className="mb-4 mx-4">
+              <h2 className="text-lg font-bold">{uniqueCategory}</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                 {filteredTickets
                   .filter((ticket) => ticket.category === uniqueCategory)
                   .map((filteredTicket, index) => (
@@ -150,7 +146,7 @@ const Dashboard = () => {
           ))}
         </div>
       ) : (
-        <div>You must be logged in to view this page.</div>
+        <div className="text-center mt-20">You must be logged in to view this page.</div>
       )}
     </div>
   );

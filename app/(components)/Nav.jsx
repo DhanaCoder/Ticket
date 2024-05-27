@@ -46,30 +46,25 @@ const Nav = () => {
   if (status === "authenticated" && session.user) {
     return (
       <>
-        <nav className="flex justify-between items-center w-full bg-gray-800 p-4">
+        <nav className="flex justify-between items-center w-full p-4 relative" style={{backgroundImage: "linear-gradient(to right, #30cfd0 0%, #330867 100%)"}}>
           <div className="flex items-center space-x-3">
             <Link href="/dashboard">
               <FontAwesomeIcon
                 icon={faHome}
-                className="text-white text-xl cursor-pointer hover:bg-yellow-300"
+                className="text-white text-xl cursor-pointer "
               />
             </Link>
-            <p className="hidden sm:block text-blue-300 font-bold">HOME</p>
+            <p className="hidden sm:block text-white font-bold">HOME</p>
             <Link href="/TicketPage/new" onClick={handleCreateTicketClick}>
               <FontAwesomeIcon
                 icon={faTicket}
-                className="text-white text-xl cursor-pointer hover:bg-green-300"
+                className="text-white text-xl cursor-pointer "
               />
             </Link>
-            <p className="hidden sm:block text-blue-300 font-bold">NEW-TICKET</p>
+            <p className="hidden sm:block text-white font-bold">NEW-TICKET</p>
           </div>
           <div className="flex items-center">
-            <div className="mr-4">
-              <FontAwesomeIcon
-                icon={faBell}
-                className="text-white text-xl cursor-pointer"
-              />
-            </div>
+          
             <div className="relative">
               <button
                 className="flex items-center text-white font-bold px-4 py-2 bg-gray-700 rounded-md hover:bg-gray-600"
