@@ -37,7 +37,6 @@ const EditTicketForm = ({ ticket }) => {
   const [formData, setFormData] = useState(startingTicketData);
   const [projects, setProjects] = useState([]);
   const [teamMembers, setTeamMembers] = useState([]);
-  
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -90,6 +89,47 @@ const EditTicketForm = ({ ticket }) => {
     fetchUserDepartment();
   }, [EDITMODE, ticket.email]);
 
+  const fetchTeamMembers = async (projectName) => {
+    const selectedProject = projects.find(
+      (project) => project.projectname === projectName
+    );
+    if (selectedProject) {
+      if (selectedProject.teamMembers.length > 0) {
+        setTeamMembers(
+          selectedProject.teamMembers.map((member) => ({
+            value: member,
+            label: member,
+          }))
+        );
+      } else {
+        try {
+          const res = await fetch("https://api.rekonsys.tech/auth/users");
+          if (!res.ok) {
+            throw new Error("Failed to fetch team members");
+          }
+          const data = await res.json();
+          if (Array.isArray(data) && data.length > 0) {
+            const userEmails = data.map((user) => ({
+              value: user.email,
+              label: user.email,
+            }));
+            setTeamMembers(userEmails);
+          } else {
+            console.error("No user emails found in the response.");
+          }
+        } catch (error) {
+          console.error("Error fetching team members:", error);
+        }
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (EDITMODE) {
+      fetchTeamMembers(formData.category);
+    }
+  }, [projects, EDITMODE, formData.category]);
+
   const handleChange = async (e) => {
     const { name, value } = e.target;
 
@@ -122,33 +162,7 @@ const EditTicketForm = ({ ticket }) => {
 
     // Update team members when a project is selected
     if (name === "category") {
-      const selectedProject = projects.find(
-        (project) => project.projectname === value
-      );
-      if (selectedProject) {
-        if (selectedProject.teamMembers.length > 0) {
-          setTeamMembers(selectedProject.teamMembers);
-        } else {
-          try {
-            const res = await fetch("https://api.rekonsys.tech/auth/users");
-            if (!res.ok) {
-              throw new Error("Failed to fetch team members");
-            }
-            const data = await res.json();
-            if (Array.isArray(data) && data.length > 0) {
-              const userEmails = data.map((user) => ({
-                value: user.email,
-                label: user.email,
-              }));
-              setTeamMembers(userEmails);
-            } else {
-              console.error("No user emails found in the response.");
-            }
-          } catch (error) {
-            console.error("Error fetching team members:", error);
-          }
-        }
-      }
+      fetchTeamMembers(value);
     }
   };
 
@@ -166,6 +180,12 @@ const EditTicketForm = ({ ticket }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Validation: Ensure at least one person is assigned
+    if (formData.assignedTo.length === 0) {
+      toast.error("Please assign at least one person to the ticket.");
+      return;
+    }
+
     try {
       const formDataWithDoneBy = {
         ...formData,
@@ -182,7 +202,7 @@ const EditTicketForm = ({ ticket }) => {
           headers: {
             "Content-type": "application/json",
           },
-          body: JSON.stringify({ formData }),
+          body: JSON.stringify({ formData: formDataWithDoneBy }),
         });
         if (!res.ok) {
           throw new Error("Failed to update ticket");
@@ -244,37 +264,32 @@ const EditTicketForm = ({ ticket }) => {
           className="p-2 border rounded"
         />
 
+        <label htmlFor="category">Project</label>
         {!EDITMODE ? (
-          <>
-            <label htmlFor="category">Project</label>
-            <select
-              name="category"
-              value={formData.category}
-              onChange={handleChange}
-              className="p-2 border rounded"
-            >
-              <option value="" disabled>
-                Select a project
+          <select
+            name="category"
+            value={formData.category}
+            onChange={handleChange}
+            className="p-2 border rounded"
+          >
+            <option value="" disabled>
+              Select a project
+            </option>
+            {projects?.map((project) => (
+              <option key={project._id} value={project.projectname}>
+                {project.projectname}
               </option>
-              {projects?.map((project) => (
-                <option key={project._id} value={project.projectname}>
-                  {project.projectname}
-                </option>
-              ))}
-            </select>
-          </>
+            ))}
+          </select>
         ) : (
-          <>
-            <label htmlFor="category">Project</label>
-            <input
-              id="category"
-              name="category"
-              type="text"
-              value={formData.category}
-              className="p-2 border rounded"
-              readOnly
-            />
-          </>
+          <input
+            id="category"
+            name="category"
+            type="text"
+            value={formData.category}
+            className="p-2 border rounded"
+            readOnly
+          />
         )}
 
         {teamMembers.length > 0 && (

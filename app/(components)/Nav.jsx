@@ -6,7 +6,7 @@ import {
   faTicket,
   faUser,
   faSignOutAlt,
-  faBell, // Import the notification icon
+  faBell,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Link from "next/link";
@@ -39,7 +39,6 @@ const Nav = () => {
     }
   }, [toastMessage]);
 
-  // Only show the user info if the session is loaded and the user is authenticated
   if (status === "loading") {
     return <div>Loading...</div>;
   }
@@ -55,14 +54,14 @@ const Nav = () => {
                 className="text-white text-xl cursor-pointer hover:bg-yellow-300"
               />
             </Link>
-            <p className="text-blue-300 font-bold">HOME</p>
+            <p className="hidden sm:block text-blue-300 font-bold">HOME</p>
             <Link href="/TicketPage/new" onClick={handleCreateTicketClick}>
               <FontAwesomeIcon
                 icon={faTicket}
                 className="text-white text-xl cursor-pointer hover:bg-green-300"
               />
             </Link>
-            <p className="text-blue-300 font-bold">NEW-TICKET</p>
+            <p className="hidden sm:block text-blue-300 font-bold">NEW-TICKET</p>
           </div>
           <div className="flex items-center">
             <div className="mr-4">
@@ -77,7 +76,7 @@ const Nav = () => {
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
               >
                 <FontAwesomeIcon icon={faUser} className="mr-2 text-xl" />
-                Hi, {session.user.username}
+                <span className="hidden sm:inline">Hi, {session.user.username}</span>
               </button>
               {isDropdownOpen && (
                 <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-md overflow-hidden z-50">

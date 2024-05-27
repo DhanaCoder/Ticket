@@ -65,23 +65,8 @@ const TicketCard = ({ ticket }) => {
       <div className="relative w-80 h-96 overflow-hidden bg-white shadow-lg border-t-4 my-2 border-b-4 border-black rounded-lg transition-transform duration-500 transform hover:-translate-y-2 cursor-pointer">
         <div className="absolute inset-0 bg-gradient-to-br from-white to-gray-100 z-0 rounded-lg"></div>
         <div className="absolute inset-0 z-10 flex flex-col items-center justify-between text-black font-medium text-base p-4">
-          <div className="w-full text-left mt-4 mb-4 ml-4 mr-4">
-            <p className="text-sm text-gray-900 mb-2">
-              <span className="font-bold my-2">Created by:</span> {ticket.email}
-              <br />
-              <span className="font-bold">Department:</span>{" "}
-              {loading ? "Loading..." : department}
-              <br/>
-              <span className="font-bold">Project:</span>{" "}
-              {ticket.category || "Loading..."}
-              <br />
-              <span className="font-bold">Assigned To:</span>{" "}
-              {ticket.assignedTo.join(", ")}
-            </p>
-          </div>
-
           <div className="text-center mb-3">
-            <h4 className="text-lg font-semibold text-gray-900 mb-1">
+            <h4 className="text-lg font-semibold text-gray-900 mb-1 uppercase">
               {ticket.title}
             </h4>
             <hr className="border-t border-gray-200" />
@@ -101,6 +86,20 @@ const TicketCard = ({ ticket }) => {
               >
                 {truncateDescription(ticket.description)}
               </Linkify>
+            </p>
+          </div>
+          <div className="w-full text-left mt-4 mb-4 ml-4 mr-4">
+            <p className="text-sm text-gray-900 mb-2">
+              <span className="font-bold my-2">Created by:</span> {ticket.email}
+              <br />
+              <span className="font-bold">Department:</span>{" "}
+              {loading ? "Loading..." : department}
+              <br />
+              <span className="font-bold">Project:</span>{" "}
+              {ticket.category || "Loading..."}
+              <br />
+              <span className="font-bold">Assigned To:</span>{" "}
+              {ticket.assignedTo.join(", ")}
             </p>
           </div>
 
@@ -125,12 +124,12 @@ const TicketCard = ({ ticket }) => {
             </p>
           )}
 
-          <div className="flex gap-2 mt-2">
+          <div className="flex gap-5 mt-2">
             <button
               className="text-sm text-blue-600 font-bold cursor-pointer"
               onClick={handleToggleModal}
             >
-              View Description
+              View
             </button>
             {ticket._id &&
               ticket.status !== "done" && ( // Check if ticket status is not "done"
@@ -146,7 +145,8 @@ const TicketCard = ({ ticket }) => {
 
       {showModal && (
         <DescriptionModal
-          description={ticket.description}
+          ticket={ticket}
+          department={department}
           onClose={handleToggleModal}
         />
       )}
