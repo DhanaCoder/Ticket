@@ -37,7 +37,6 @@ const EditTicketForm = ({ ticket }) => {
   const [formData, setFormData] = useState(startingTicketData);
   const [projects, setProjects] = useState([]);
   const [teamMembers, setTeamMembers] = useState([]);
-  
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -99,13 +98,14 @@ const EditTicketForm = ({ ticket }) => {
       [name]: value,
     }));
 
-    // If the status is "done", set progress to 100
+    // If the status is "done", set progress to 100 and show warning
     if (name === "status" && value === "done") {
       setFormData((prevState) => ({
         ...prevState,
         progress: 100,
         doneBy: { email: session?.user?.email, name: session?.user?.name }, // Set doneBy
       }));
+      toast.warn("If you done, Then not able to edit");
     } else if (name === "status" && value === "started") {
       setFormData((prevState) => ({
         ...prevState,
@@ -166,6 +166,18 @@ const EditTicketForm = ({ ticket }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Validate the form data
+    if (
+      !formData.title ||
+      !formData.description ||
+      !formData.category ||
+      (EDITMODE && !formData.department) ||
+      formData.assignedTo.length === 0
+    ) {
+      toast.error("Please fill in all required fields.");
+      return;
+    }
+
     try {
       const formDataWithDoneBy = {
         ...formData,
@@ -212,6 +224,8 @@ const EditTicketForm = ({ ticket }) => {
     }
   };
 
+  const isCreator = session?.user?.email === ticket.email;
+
   return (
     <div className="flex justify-center">
       <ToastContainer />
@@ -244,7 +258,7 @@ const EditTicketForm = ({ ticket }) => {
           className="p-2 border rounded"
         />
 
-        {!EDITMODE ? (
+        {!EDITMODE || isCreator ? (
           <>
             <label htmlFor="category">Project</label>
             <select
@@ -267,7 +281,8 @@ const EditTicketForm = ({ ticket }) => {
           <>
             <label htmlFor="category">Project</label>
             <input
-              id="category"
+              id="
+              category"
               name="category"
               type="text"
               value={formData.category}
@@ -298,14 +313,14 @@ const EditTicketForm = ({ ticket }) => {
           {[5, 4, 3, 2, 1].map((priority) => (
             <div key={priority} className="flex items-center gap-1">
               <input
-                id={priority-`${priority}`}
+                id={`priority-${priority}`}
                 name="priority"
                 type="radio"
                 onChange={handleChange}
                 value={priority}
                 checked={formData.priority == priority}
               />
-              <label htmlFor={priority-`${priority}`}>{priority}</label>
+              <label htmlFor={`priority-${priority}`}>{priority}</label>
             </div>
           ))}
         </div>
