@@ -1,27 +1,28 @@
-"use client";
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
+import { faTrash } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const CommentModal = ({ ticket, onClose }) => {
   const [comments, setComments] = useState([]);
-  const [commentText, setCommentText] = useState('');
+  const [commentText, setCommentText] = useState("");
 
-  // Extract ticketId from the ticket object
   const ticketId = ticket._id;
 
   useEffect(() => {
     const fetchComments = async () => {
       if (!ticketId) {
-        console.error('Ticket ID is undefined');
+        console.error("Ticket ID is undefined");
         return;
       }
       try {
         const res = await fetch(`/api/comments/${ticketId}`);
-        if (!res.ok) throw new Error('Failed to fetch comments');
+        if (!res.ok) throw new Error("Failed to fetch comments");
         const data = await res.json();
         setComments(data);
       } catch (error) {
-        console.error('Error fetching comments:', error);
+        console.error("Error fetching comments:", error);
       }
     };
 
@@ -31,58 +32,102 @@ const CommentModal = ({ ticket, onClose }) => {
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
     if (!ticketId) {
-      console.error('Ticket ID is undefined');
+      console.error("Ticket ID is undefined");
       return;
     }
     try {
       const res = await fetch(`/api/comments/${ticketId}`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ text: commentText }),
       });
 
-      if (!res.ok) throw new Error('Failed to post comment');
+      if (!res.ok) throw new Error("Failed to post comment");
 
       const newComment = await res.json();
       setComments([...comments, newComment]);
-      setCommentText('');
+      setCommentText("");
+      toast.success("Comment added successfully");
     } catch (error) {
-      console.error('Error posting comment:', error);
+      console.error("Error posting comment:", error);
+      toast.error("Failed to add comment");
+    }
+  };
+
+  const handleDeleteComment = async (commentId) => {
+    if (!ticketId) {
+      console.error("Ticket ID is undefined");
+      return;
+    }
+    try {
+      const res = await fetch(`/api/comments/${ticketId}/${commentId}`, {
+        method: "DELETE",
+      });
+
+      if (!res.ok) throw new Error("Failed to delete comment");
+
+      setComments(comments.filter((comment) => comment._id !== commentId));
+      toast.error("Comment deleted successfully");
+    } catch (error) {
+      console.error("Error deleting comment:", error);
+      toast.error("Failed to delete comment");
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-4 rounded shadow-lg w-1/3">
-        <h2 className="text-lg font-bold mb-2">Comments</h2>
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+      <div className="bg-white p-6 rounded-lg shadow-lg w-11/12 md:w-2/3 lg:w-1/2">
+        <h2 className="text-2xl font-bold text-gray-600 mb-4">Comments</h2>
         <div className="mb-4 max-h-64 overflow-y-auto">
           {comments.map((comment) => (
-            <div key={comment._id} className="mb-2 border-b border-gray-300 pb-2">
-              <p className="text-sm">{comment.text}</p>
-              <p className="text-xs text-gray-500">{new Date(comment.createdAt).toLocaleString()}</p>
+            <div
+              key={comment._id}
+              className="mb-2 border-b border-gray-300 pb-2 flex justify-between items-start"
+            >
+              <div>
+                <p className="text-sm">{comment.text}</p>
+                <p className="text-xs text-gray-500">
+                  {new Date(comment.createdAt).toLocaleString()}
+                </p>
+              </div>
+              <button
+                className="rounded-lg border border-red-500 text-red-500 text-sm p-1 hover:bg-red-400"
+                onClick={() => handleDeleteComment(comment._id)}
+              >
+                <FontAwesomeIcon icon={faTrash} />
+              </button>
             </div>
           ))}
         </div>
-        <form onSubmit={handleCommentSubmit}>
+        <form onSubmit={handleCommentSubmit} className="flex flex-col">
           <textarea
-            className="w-full border border-gray-300 p-2 rounded mb-2"
+            placeholder="Enter your comment"
+            className="bg-gray-700 text-gray-200 border-0 rounded-md p-2 mb-4 focus:bg-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500 transition ease-in-out duration-150"
             rows="3"
             value={commentText}
             onChange={(e) => setCommentText(e.target.value)}
             required
           ></textarea>
           <div className="flex justify-end">
-            <button type="button" className="mr-2 text-sm text-gray-500" onClick={onClose}>
+            <button
+              type="button"
+              className="bg-gradient-to-r from-green-500 to-blue-500 text-white font-bold py-2 px-4 rounded-md mt-4 hover:bg-green-600 hover:to-blue-600 transition ease-in-out duration-150"
+              onClick={onClose}
+            >
               Close
             </button>
-            <button type="submit" className="text-sm text-blue-600">
+            <button
+              type="submit"
+              className="bg-gradient-to-r from-green-500 to-blue-500 ml-2 text-white font-bold py-2 px-4 rounded-md mt-4 hover:bg-green-600 hover:to-blue-600 transition ease-in-out duration-150"
+            >
               Add Comment
             </button>
           </div>
         </form>
       </div>
+      <ToastContainer />
     </div>
   );
 };
