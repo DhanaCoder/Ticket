@@ -7,12 +7,14 @@ import ProgressDisplay from "./ProgressDisplay";
 import Linkify from "react-linkify";
 import Link from "next/link";
 import DescriptionModal from "./DescriptionModal";
+import CommentModal from "./CommentModel"; // Import the CommentModal
 
 const TicketCard = ({ ticket }) => {
   const { data: session } = useSession();
   const [loading, setLoading] = useState(true);
   const [department, setDepartment] = useState("");
-  const [showModal, setShowModal] = useState(false);
+  const [showDescriptionModal, setShowDescriptionModal] = useState(false);
+  const [showCommentModal, setShowCommentModal] = useState(false); // State for comment modal
 
   useEffect(() => {
     const fetchDepartment = async () => {
@@ -49,8 +51,12 @@ const TicketCard = ({ ticket }) => {
 
   const isAdmin = session && session.user.role === "Admin";
 
-  const handleToggleModal = () => {
-    setShowModal(!showModal);
+  const handleToggleDescriptionModal = () => {
+    setShowDescriptionModal(!showDescriptionModal);
+  };
+
+  const handleToggleCommentModal = () => {
+    setShowCommentModal(!showCommentModal);
   };
 
   const truncateDescription = (description) => {
@@ -127,9 +133,15 @@ const TicketCard = ({ ticket }) => {
           <div className="flex gap-5 mt-2">
             <button
               className="text-sm text-blue-600 font-bold cursor-pointer"
-              onClick={handleToggleModal}
+              onClick={handleToggleDescriptionModal}
             >
               View
+            </button>
+            <button
+              className="text-sm text-blue-600 font-bold cursor-pointer"
+              onClick={handleToggleCommentModal}
+            >
+              Comment
             </button>
             {ticket._id &&
               ticket.status !== "done" && ( // Check if ticket status is not "done"
@@ -143,12 +155,16 @@ const TicketCard = ({ ticket }) => {
         </div>
       </div>
 
-      {showModal && (
+      {showDescriptionModal && (
         <DescriptionModal
           ticket={ticket}
           department={department}
-          onClose={handleToggleModal}
+          onClose={handleToggleDescriptionModal}
         />
+      )}
+
+      {showCommentModal && (
+        <CommentModal ticket={ticket} onClose={handleToggleCommentModal} />
       )}
     </>
   );
