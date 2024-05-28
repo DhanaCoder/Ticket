@@ -7,7 +7,7 @@ import ProgressDisplay from "./ProgressDisplay";
 import Linkify from "react-linkify";
 import Link from "next/link";
 import DescriptionModal from "./DescriptionModal";
-import CommentModal from "./CommentModel"; // Import the CommentModal
+import CommentModal from "./CommentModel";
 
 const TicketCard = ({ ticket }) => {
   const { data: session } = useSession();

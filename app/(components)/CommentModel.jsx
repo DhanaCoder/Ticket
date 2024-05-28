@@ -7,6 +7,8 @@ import "react-toastify/dist/ReactToastify.css";
 const CommentModal = ({ ticket, onClose }) => {
   const [comments, setComments] = useState([]);
   const [commentText, setCommentText] = useState("");
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [commentToDelete, setCommentToDelete] = useState(null);
 
   const ticketId = ticket._id;
 
@@ -56,9 +58,15 @@ const CommentModal = ({ ticket, onClose }) => {
     }
   };
 
-  const handleDeleteComment = async (commentId) => {
-    if (!ticketId) {
-      console.error("Ticket ID is undefined");
+  const handleDeleteClick = (commentId) => {
+    setCommentToDelete(commentId);
+    setShowConfirmModal(true);
+  };
+
+  const confirmDelete = async () => {
+    const commentId = commentToDelete;
+    if (!ticketId || !commentId) {
+      console.error("Ticket ID or Comment ID is undefined");
       return;
     }
     try {
@@ -69,11 +77,18 @@ const CommentModal = ({ ticket, onClose }) => {
       if (!res.ok) throw new Error("Failed to delete comment");
 
       setComments(comments.filter((comment) => comment._id !== commentId));
-      toast.error("Comment deleted successfully");
+      setShowConfirmModal(false);
+      setCommentToDelete(null);
+      toast.success("Comment deleted successfully");
     } catch (error) {
       console.error("Error deleting comment:", error);
       toast.error("Failed to delete comment");
     }
+  };
+
+  const cancelDelete = () => {
+    setShowConfirmModal(false);
+    setCommentToDelete(null);
   };
 
   return (
@@ -94,7 +109,7 @@ const CommentModal = ({ ticket, onClose }) => {
               </div>
               <button
                 className="rounded-lg border border-red-500 text-red-500 text-sm p-1 hover:bg-red-400"
-                onClick={() => handleDeleteComment(comment._id)}
+                onClick={() => handleDeleteClick(comment._id)}
               >
                 <FontAwesomeIcon icon={faTrash} />
               </button>
@@ -128,6 +143,31 @@ const CommentModal = ({ ticket, onClose }) => {
         </form>
       </div>
       <ToastContainer />
+
+      {showConfirmModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-11/12 md:w-1/3 lg:w-1/4">
+            <h2 className="text-xl font-bold text-gray-600 mb-4">Confirm Delete</h2>
+            <p className="mb-4">Are you sure you want to delete this comment?</p>
+            <div className="flex justify-end">
+              <button
+                type="button"
+                className="bg-red-500 text-white font-bold py-2 px-4 rounded-md mt-4 hover:bg-red-600 transition ease-in-out duration-150"
+                onClick={confirmDelete}
+              >
+                Yes
+              </button>
+              <button
+                type="button"
+                className="bg-gray-500 text-white font-bold py-2 px-4 rounded-md mt-4 ml-2 hover:bg-gray-600 transition ease-in-out duration-150"
+                onClick={cancelDelete}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
