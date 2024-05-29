@@ -14,7 +14,7 @@ const DeleteBlock = ({ id }) => {
 
   const deleteTicket = async () => {
     try {
-      const res = await fetch(`/api/Tickets/${id}`, {
+      const res = await fetch(`/api/Tickets/${id}/${id}`, {
         method: "DELETE",
       });
 
