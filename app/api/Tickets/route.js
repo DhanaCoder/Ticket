@@ -20,10 +20,10 @@ export async function POST(req) {
     // Check if the ticket status is "done"
     if (ticketData.status === "done") {
       // Populate the "doneBy" field with the user's email
-      ticketData.doneBy = ticketData.email; // Assuming "email" field contains the user's email
+      ticketData.doneBy = ticketData.email; 
     } else {
       // If status is not "done", set "doneBy" to null or an empty string as per your schema
-      ticketData.doneBy = null; // Or ticketData.doneBy = ""; depending on your preference
+      ticketData.doneBy = null; 
     }
 
     // Create the ticket with the updated data

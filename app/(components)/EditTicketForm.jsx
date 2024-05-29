@@ -31,7 +31,7 @@ const EditTicketForm = ({ ticket }) => {
     startingTicketData.status = ticket.status;
     startingTicketData.category = ticket.category;
     startingTicketData.assignedTo = ticket.assignedTo || [];
-    startingTicketData.email = ticket.email; // Ensure the original creator's email is retained
+    startingTicketData.email = ticket.email;
   }
 
   const [formData, setFormData] = useState(startingTicketData);
@@ -48,7 +48,7 @@ const EditTicketForm = ({ ticket }) => {
           throw new Error("Failed to fetch projects");
         }
         const data = await res.json();
-        setProjects(data); // Assuming the projects are directly in the data array
+        setProjects(data); 
       } catch (error) {
         console.error("Error fetching projects:", error);
       }
@@ -92,7 +92,7 @@ const EditTicketForm = ({ ticket }) => {
   const handleChange = async (e) => {
     const { name, value } = e.target;
 
-    // Update the form data
+    
     setFormData((prevState) => ({
       ...prevState,
       [name]: value,
@@ -103,20 +103,20 @@ const EditTicketForm = ({ ticket }) => {
       setFormData((prevState) => ({
         ...prevState,
         progress: 100,
-        doneBy: { email: session?.user?.email, name: session?.user?.name }, // Set doneBy
+        doneBy: { email: session?.user?.email, name: session?.user?.name },
       }));
       toast.warn("If you done, Then not able to edit");
     } else if (name === "status" && value === "started") {
       setFormData((prevState) => ({
         ...prevState,
         progress: 50,
-        doneBy: null, // Reset doneBy
+        doneBy: null, 
       }));
     } else if (name === "status" && value !== "done") {
       setFormData((prevState) => ({
         ...prevState,
         progress: 0,
-        doneBy: null, // Reset doneBy
+        doneBy: null, 
       }));
     }
 
@@ -181,7 +181,7 @@ const EditTicketForm = ({ ticket }) => {
     try {
       const formDataWithDoneBy = {
         ...formData,
-        email: session?.user?.email || formData.email, // Ensure email is set
+        email: session?.user?.email || formData.email, 
         doneBy:
           formData.status === "done" && formData.progress === 100
             ? { email: session?.user?.email, name: session?.user?.name }

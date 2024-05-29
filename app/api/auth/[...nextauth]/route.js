@@ -67,7 +67,7 @@ export const authOptions = {
         session.user.username = token.username;
         session.user.role = token.role;
         session.user.department = token.department;
-        session.user.position = token.position; // Corrected this line
+        session.user.position = token.position; 
       }
       return session;
     },

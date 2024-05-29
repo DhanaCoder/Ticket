@@ -14,7 +14,7 @@ const TicketCard = ({ ticket }) => {
   const [loading, setLoading] = useState(true);
   const [department, setDepartment] = useState("");
   const [showDescriptionModal, setShowDescriptionModal] = useState(false);
-  const [showCommentModal, setShowCommentModal] = useState(false); // State for comment modal
+  const [showCommentModal, setShowCommentModal] = useState(false); 
 
   useEffect(() => {
     const fetchDepartment = async () => {

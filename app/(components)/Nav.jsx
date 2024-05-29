@@ -23,7 +23,7 @@ const Nav = () => {
 
   const handleCreateTicketClick = (e) => {
     if (
-      session.user.role !== "Admin" &&
+      session.user.role !== "admin" &&
       session.user.position !== "Testers/QA Engineers" &&
       session.user.department !== "Quality Assurance and Testing"
     ) {
@@ -114,7 +114,7 @@ const Nav = () => {
     );
   }
 
-  return null; // Or return a different component for unauthenticated state
+  return null; 
 };
 
 export default Nav;
