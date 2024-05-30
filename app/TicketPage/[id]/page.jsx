@@ -10,26 +10,33 @@ const getTicketById = async (id) => {
       throw new Error("Failed to fetch topic");
     }
 
-    return res.json();
+    const data = await res.json();
+    return data.foundTicket; // Assuming foundTicket is the relevant data
   } catch (error) {
-    console.log(error);
+    console.error("Error fetching ticket:", error);
+    throw error; // Re-throw the error to handle it higher up
   }
 };
 
-let updateTicketData = {};
 const TicketPage = async ({ params }) => {
-  const EDITMODE = params.id === "new" ? false : true;
+  try {
+    const EDITMODE = params.id !== "new"; // Checking if it's not "new"
 
-  if (EDITMODE) {
-    updateTicketData = await getTicketById(params.id);
-    updateTicketData = updateTicketData.foundTicket;
-  } else {
-    updateTicketData = {
-      _id: "new",
-    };
+    let updateTicketData = {};
+    if (EDITMODE) {
+      updateTicketData = await getTicketById(params.id);
+    } else {
+      updateTicketData = {
+        _id: "new",
+      };
+    }
+
+    return <EditTicketForm ticket={updateTicketData} />;
+  } catch (error) {
+    // Handle errors here or let it bubble up
+    console.error("Error in TicketPage:", error);
+    return <div>Error loading ticket data.</div>;
   }
-
-  return <EditTicketForm ticket={updateTicketData} />;
 };
 
 export default TicketPage;
