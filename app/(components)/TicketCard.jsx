@@ -14,7 +14,7 @@ const TicketCard = ({ ticket }) => {
   const [loading, setLoading] = useState(true);
   const [department, setDepartment] = useState("");
   const [showDescriptionModal, setShowDescriptionModal] = useState(false);
-  const [showCommentModal, setShowCommentModal] = useState(false); 
+  const [showCommentModal, setShowCommentModal] = useState(false);
 
   useEffect(() => {
     const fetchDepartment = async () => {
@@ -49,7 +49,7 @@ const TicketCard = ({ ticket }) => {
     hour12: true,
   });
 
-  const isAdmin = session && session.user.role === "Admin";
+  const isAdmin = session && session.user.role === "admin";
 
   const handleToggleDescriptionModal = () => {
     setShowDescriptionModal(!showDescriptionModal);
@@ -59,11 +59,20 @@ const TicketCard = ({ ticket }) => {
     setShowCommentModal(!showCommentModal);
   };
 
+  const truncateText = (text, maxLength) => {
+    return text.length > maxLength
+      ? text.substring(0, maxLength) + "..."
+      : text;
+  };
+
   const truncateDescription = (description) => {
-    const maxLength = 25;
-    return description.length > maxLength
-      ? description.substring(0, maxLength) + "..."
-      : description;
+    return truncateText(description, 25);
+  };
+
+  const truncateAssignedTo = (assignedTo) => {
+    const maxLength = 55;
+    const truncatedList = assignedTo.join(", ").substring(0, maxLength);
+    return truncateText(truncatedList, maxLength);
   };
 
   return (
@@ -105,7 +114,7 @@ const TicketCard = ({ ticket }) => {
               {ticket.category || "Loading..."}
               <br />
               <span className="font-bold">Assigned To:</span>{" "}
-              {ticket.assignedTo.join(", ")}
+              {loading ? "Loading..." : truncateAssignedTo(ticket.assignedTo)}
             </p>
           </div>
 
@@ -124,7 +133,7 @@ const TicketCard = ({ ticket }) => {
             <StatusDisplay status={ticket.status} />
           </div>
 
-          {ticket.status === "done" && ticket.doneBy && (
+          {ticket.status === "solved" && ticket.doneBy && (
             <p className="text-sm text-green-600 font-bold mt-2">
               Done by: {ticket.doneBy.email}
             </p>
@@ -144,7 +153,11 @@ const TicketCard = ({ ticket }) => {
               Comment
             </button>
             {ticket._id &&
-              ticket.status !== "done" && ( // Check if ticket status is not "done"
+              session &&
+              (session.user.email === ticket.email ||
+                ticket.status === "reopened" ||
+                "started" ||
+                "not started") && (
                 <Link href={`/TicketPage/${ticket._id}`}>
                   <span className="text-sm text-blue-600 font-bold cursor-pointer">
                     Edit

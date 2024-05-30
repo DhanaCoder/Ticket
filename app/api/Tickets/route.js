@@ -18,7 +18,7 @@ export async function POST(req) {
     const ticketData = body.formData;
 
     // Check if the ticket status is "done"
-    if (ticketData.status === "done") {
+    if (ticketData.status === "solved") {
       // Populate the "doneBy" field with the user's email
       ticketData.doneBy = ticketData.email; 
     } else {

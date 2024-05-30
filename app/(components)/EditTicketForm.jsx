@@ -42,13 +42,13 @@ const EditTicketForm = ({ ticket }) => {
     const fetchProjects = async () => {
       try {
         const res = await fetch(
-          "https://stagingapi.rekonsys.tech/all-projects"
+          `${process.env.NEXT_PUBLIC_PROJECT_URL}/all-projects`
         );
         if (!res.ok) {
           throw new Error("Failed to fetch projects");
         }
         const data = await res.json();
-        setProjects(data); 
+        setProjects(data);
       } catch (error) {
         console.error("Error fetching projects:", error);
       }
@@ -92,35 +92,39 @@ const EditTicketForm = ({ ticket }) => {
   const handleChange = async (e) => {
     const { name, value } = e.target;
 
-    
     setFormData((prevState) => ({
       ...prevState,
       [name]: value,
     }));
 
-    // If the status is "done", set progress to 100 and show warning
-    if (name === "status" && value === "done") {
+    if (name === "status" && value === "solved") {
       setFormData((prevState) => ({
         ...prevState,
         progress: 100,
         doneBy: { email: session?.user?.email, name: session?.user?.name },
       }));
-      toast.warn("If you done, Then not able to edit");
+      toast.warn("Check before submitting");
     } else if (name === "status" && value === "started") {
       setFormData((prevState) => ({
         ...prevState,
         progress: 50,
-        doneBy: null, 
+        doneBy: null,
       }));
     } else if (name === "status" && value !== "done") {
       setFormData((prevState) => ({
         ...prevState,
         progress: 0,
-        doneBy: null, 
+        doneBy: null,
       }));
+    } else if (name === "status" && value === "reopened") {
+      setFormData((prevState) => ({
+        ...prevState,
+        progress: 25,
+        doneBy: null,
+      }));
+      toast.info("Ticket reopened");
     }
 
-    // Update team members when a project is selected
     if (name === "category") {
       const selectedProject = projects.find(
         (project) => project.projectname === value
@@ -154,9 +158,19 @@ const EditTicketForm = ({ ticket }) => {
 
   const handleMultiSelectChange = (selectedOptions) => {
     const selectedEmails = selectedOptions.map((option) => option.value);
+
     if (selectedEmails.length > 10) {
+      toast.error("You cannot assign more than 10 users to a ticket.");
       return;
     }
+
+    if (selectedEmails.includes(session.user.email)) {
+      toast.error(
+        "You cannot assign the ticket creator's email to the ticket."
+      );
+      return;
+    }
+
     setFormData((prevState) => ({
       ...prevState,
       assignedTo: selectedEmails,
@@ -166,7 +180,6 @@ const EditTicketForm = ({ ticket }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validate the form data
     if (
       !formData.title ||
       !formData.description ||
@@ -181,9 +194,9 @@ const EditTicketForm = ({ ticket }) => {
     try {
       const formDataWithDoneBy = {
         ...formData,
-        email: session?.user?.email || formData.email, 
+        email: session?.user?.email || formData.email,
         doneBy:
-          formData.status === "done" && formData.progress === 100
+          formData.status === "solved" && formData.progress === 100
             ? { email: session?.user?.email, name: session?.user?.name }
             : null,
       };
@@ -281,8 +294,7 @@ const EditTicketForm = ({ ticket }) => {
           <>
             <label htmlFor="category">Project</label>
             <input
-              id="
-              category"
+              id="category"
               name="category"
               type="text"
               value={formData.category}
@@ -303,7 +315,8 @@ const EditTicketForm = ({ ticket }) => {
                 formData.assignedTo.includes(member.value)
               )}
               onChange={handleMultiSelectChange}
-              className="p-2 border rounded"
+              className="basic-multi-select"
+              classNamePrefix="select"
             />
           </>
         )}
@@ -346,14 +359,13 @@ const EditTicketForm = ({ ticket }) => {
         >
           <option value="not started">Not Started</option>
           <option value="started">Started</option>
-          <option value="done">Done</option>
+          {EDITMODE && <option value="solved">Solved</option>}
+          {EDITMODE && <option value="reopened">Reopened</option>}
         </select>
 
-        <input
-          type="submit"
-          className="btn max-w-xs p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-          value={EDITMODE ? "Update Ticket" : "Create Ticket"}
-        />
+        <button type="submit" className="bg-blue-500 text-white p-2 rounded">
+          {EDITMODE ? "Update Ticket" : "Create Ticket"}
+        </button>
       </form>
     </div>
   );

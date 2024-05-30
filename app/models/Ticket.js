@@ -27,7 +27,7 @@ const ticketSchema = new Schema(
     },
     status: {
       type: String,
-      enum: ["not started", "started", "done"],
+      enum: ["not started", "started", "solved","reopened"],
       required: true,
     },
     category: {
@@ -50,13 +50,13 @@ const ticketSchema = new Schema(
       email: {
         type: String,
         required: function () {
-          return this.status === "done";
+          return this.status === "solved";
         },
       },
       name: {
         type: String,
         required: function () {
-          return this.status === "done";
+          return this.status === "solved";
         },
       },
     },

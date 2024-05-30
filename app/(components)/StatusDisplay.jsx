@@ -2,8 +2,12 @@ const StatusDisplay = ({ status }) => {
   const getColor = (status) => {
     let color;
     switch (status) {
-      case "done":
+      case "solved":
         color = "bg-green-200";
+        return color;
+
+      case "reopened":
+        color = "bg-blue-200";
         return color;
 
       case "started":

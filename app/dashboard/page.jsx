@@ -53,7 +53,7 @@ const Dashboard = () => {
     if (filter === "All") return true;
     if (filter === "Pending")
       return ticket.status === "not started" || ticket.status === "started";
-    if (filter === "Completed") return ticket.status === "done";
+    if (filter === "Completed") return ticket.status === "solved";
     return true;
   });
 

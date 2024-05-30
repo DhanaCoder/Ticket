@@ -14,13 +14,13 @@ const DeleteBlock = ({ id }) => {
 
   const deleteTicket = async () => {
     try {
-      const res = await fetch(`/api/Tickets/${id}/${id}`, {
+      const res = await fetch(`/api/Tickets/${id}`, {
         method: "DELETE",
       });
 
       if (!res.ok) throw new Error("Failed to delete ticket");
 
-      router.refresh("/dashboard");
+      window.location.reload();
     } catch (error) {
       console.error("Error deleting ticket:", error);
       toast.error("Failed to delete ticket");
