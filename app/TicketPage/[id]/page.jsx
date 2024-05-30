@@ -1,38 +1,35 @@
-import axios from 'axios';
 import EditTicketForm from "@/app/(components)/EditTicketForm";
 
 const getTicketById = async (id) => {
   try {
-    const response = await axios.get(`http://localhost:3000/api/Tickets/${id}`, {
-      headers: {
-        'Cache-Control': 'no-store'
-      }
+    const res = await fetch(`http://localhost:3000/api/Tickets/${id}`, {
+      cache: "no-store",
     });
 
-    return response.data;
+    if (!res.ok) {
+      throw new Error("Failed to fetch topic");
+    }
+
+    return res.json();
   } catch (error) {
-    console.error("Error fetching ticket:", error);
-    throw error;
+    console.log(error);
   }
 };
 
+let updateTicketData = {};
 const TicketPage = async ({ params }) => {
-  try {
-    const { id } = params;
-    const EDITMODE = id !== "new";
+  const EDITMODE = params.id === "new" ? false : true;
 
-    let updateTicketData = {};
-    if (EDITMODE) {
-      updateTicketData = await getTicketById(id);
-    } else {
-      updateTicketData = { _id: "new" };
-    }
-
-    return <EditTicketForm ticket={updateTicketData} />;
-  } catch (error) {
-    console.error("Error in TicketPage:", error);
-    return <div>Error loading ticket data.</div>;
+  if (EDITMODE) {
+    updateTicketData = await getTicketById(params.id);
+    updateTicketData = updateTicketData.foundTicket;
+  } else {
+    updateTicketData = {
+      _id: "new",
+    };
   }
+
+  return <EditTicketForm ticket={updateTicketData} />;
 };
 
 export default TicketPage;
