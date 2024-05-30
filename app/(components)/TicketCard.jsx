@@ -70,8 +70,8 @@ const TicketCard = ({ ticket }) => {
   };
 
   const truncateAssignedTo = (assignedTo) => {
-    const maxLength = 55;
-    const truncatedList = assignedTo.join(", ").substring(0, maxLength);
+    const maxLength = 60;
+    const truncatedList = assignedTo.join(", ").substring(0, maxLength)+ ".....";
     return truncateText(truncatedList, maxLength);
   };
 
