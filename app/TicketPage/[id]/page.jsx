@@ -1,17 +1,15 @@
+import axios from 'axios';
 import EditTicketForm from "@/app/(components)/EditTicketForm";
 
 const getTicketById = async (id) => {
   try {
-    const res = await fetch(`http://localhost:3000/api/Tickets/${id}`, {
-      cache: "no-store",
+    const response = await axios.get(`http://localhost:3000/api/Tickets/${id}`, {
+      headers: {
+        'Cache-Control': 'no-store'
+      }
     });
 
-    if (!res.ok) {
-      throw new Error("Failed to fetch ticket");
-    }
-
-    const data = await res.json();
-    return data.foundTicket;
+    return response.data;
   } catch (error) {
     console.error("Error fetching ticket:", error);
     throw error;
