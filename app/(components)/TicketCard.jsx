@@ -13,6 +13,7 @@ const TicketCard = ({ ticket }) => {
   const { data: session } = useSession();
   const [loading, setLoading] = useState(true);
   const [department, setDepartment] = useState("");
+  const [commentsCount, setCommentsCount] = useState(0);
   const [showDescriptionModal, setShowDescriptionModal] = useState(false);
   const [showCommentModal, setShowCommentModal] = useState(false);
 
@@ -37,8 +38,22 @@ const TicketCard = ({ ticket }) => {
       }
     };
 
+    const fetchCommentsCount = async () => {
+      try {
+        const res = await fetch(
+          `http://localhost:3000/api/comments/${ticket._id}`
+        );
+        if (!res.ok) throw new Error("Failed to fetch comments");
+        const data = await res.json();
+        setCommentsCount(data.length);
+      } catch (error) {
+        console.error("Error fetching comments count:", error);
+      }
+    };
+
     fetchDepartment();
-  }, [ticket.email]);
+    fetchCommentsCount();
+  }, [ticket.email, ticket._id]);
 
   const createdDateTime = new Date(ticket.createdAt).toLocaleString("en-US", {
     year: "numeric",
@@ -70,8 +85,8 @@ const TicketCard = ({ ticket }) => {
   };
 
   const truncateAssignedTo = (assignedTo) => {
-    const maxLength = 60;
-    const truncatedList = assignedTo.join(", ").substring(0, maxLength)+ ".....";
+    const maxLength = 30;
+    const truncatedList = assignedTo.join(", ").substring(0, maxLength) + ".....";
     return truncateText(truncatedList, maxLength);
   };
 
@@ -80,7 +95,7 @@ const TicketCard = ({ ticket }) => {
       <div className="relative w-80 h-96 overflow-hidden bg-white shadow-lg border-t-4 my-2 border-b-4 border-black rounded-lg transition-transform duration-500 transform hover:-translate-y-2 cursor-pointer">
         <div className="absolute inset-0 bg-gradient-to-br from-white to-gray-100 z-0 rounded-lg"></div>
         <div className="absolute inset-0 z-10 flex flex-col items-center justify-between text-black font-medium text-base p-4">
-          <div className="text-center mb-3">
+          <div className="text-center mb-2">
             <h4 className="text-lg font-semibold text-gray-900 mb-1 uppercase">
               {ticket.title}
             </h4>
@@ -117,7 +132,6 @@ const TicketCard = ({ ticket }) => {
               {loading ? "Loading..." : truncateAssignedTo(ticket.assignedTo)}
             </p>
           </div>
-
           <div className="w-full flex items-center justify-between mb-2">
             <PriorityDisplay priority={ticket.priority} />
             {session && (session.user.email === ticket.email || isAdmin) && (
@@ -141,16 +155,16 @@ const TicketCard = ({ ticket }) => {
 
           <div className="flex gap-5 mt-2">
             <button
-              className="text-sm text-blue-600 font-bold cursor-pointer"
+              className="text-sm hover:text-blue-600 font-bold cursor-pointer"
               onClick={handleToggleDescriptionModal}
             >
               View
             </button>
             <button
-              className="text-sm text-blue-600 font-bold cursor-pointer"
+              className="text-sm hover:text-blue-600 font-bold cursor-pointer"
               onClick={handleToggleCommentModal}
             >
-              Comment
+              Comment ({commentsCount})
             </button>
             {ticket._id &&
               session &&
@@ -159,7 +173,7 @@ const TicketCard = ({ ticket }) => {
                 "started" ||
                 "not started") && (
                 <Link href={`/TicketPage/${ticket._id}`}>
-                  <span className="text-sm text-blue-600 font-bold cursor-pointer">
+                  <span className="text-sm hover:text-blue-600 font-bold cursor-pointer">
                     Edit
                   </span>
                 </Link>

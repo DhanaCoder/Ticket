@@ -76,7 +76,7 @@ const Dashboard = () => {
           <Nav />
           <div className="flex mx-4 my-4 rounded bg-white p-2 lg:max-w-md lg:mx-auto">
             <input
-              className="border br-2 bg-transparent px-4 py-2 text-gray-700 outline-none flex-grow"
+              className="border br-2 bg-transparent px-4 py-2 text-gray-700 outline-none hover:border-2 border-black flex-grow"
               type="search"
               name="search"
               placeholder="Search..."
@@ -85,7 +85,7 @@ const Dashboard = () => {
             />
             <button
               type="submit"
-              className="m-2 rounded bg-blue-600 p-2 text-white flex items-center"
+              className="m-2 rounded  hover:bg-blue-600 p-2 text-white flex  bg-gray-500 items-center"
             >
               <svg
                 className="fill-current h-6 w-6"

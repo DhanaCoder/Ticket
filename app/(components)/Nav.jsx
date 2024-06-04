@@ -51,14 +51,14 @@ const Nav = () => {
             <Link href="/dashboard">
               <FontAwesomeIcon
                 icon={faHome}
-                className="text-white text-xl cursor-pointer "
+                className="text-white text-xl cursor-pointer hover:text-blue-500"
               />
             </Link>
             <p className="hidden sm:block text-white font-bold">HOME</p>
             <Link href="/TicketPage/new" onClick={handleCreateTicketClick}>
               <FontAwesomeIcon
                 icon={faTicket}
-                className="text-white text-xl cursor-pointer "
+                className="text-white text-xl cursor-pointer hover:text-blue-500"
               />
             </Link>
             <p className="hidden sm:block text-white font-bold">NEW-TICKET</p>

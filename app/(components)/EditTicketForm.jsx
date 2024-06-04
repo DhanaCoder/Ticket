@@ -5,6 +5,9 @@ import { useSession } from "next-auth/react";
 import Select from "react-select";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Link from "next/link";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faHome } from "@fortawesome/free-solid-svg-icons";
 
 const EditTicketForm = ({ ticket }) => {
   const EDITMODE = ticket._id !== "new";
@@ -247,9 +250,17 @@ const EditTicketForm = ({ ticket }) => {
         method="post"
         className="flex flex-col gap-3 w-1/2"
       >
-        <h3>{EDITMODE ? "Update Your Ticket" : "Create New Ticket"}</h3>
+        <h3 className="flex flex-row gap-10">{EDITMODE ? "Update Your Ticket" : "Create New Ticket"}
+        <Link href="/dashboard">
+              <FontAwesomeIcon
+                icon={faHome}
+                className="text-black text-xl cursor-pointer hover:text-blue-500"
+              />
+            </Link>
+            
+        </h3>
 
-        <label htmlFor="title">Title</label>
+        <label htmlFor="title">Title <span className="text-red-500">*</span></label>
         <input
           id="title"
           name="title"
@@ -260,7 +271,7 @@ const EditTicketForm = ({ ticket }) => {
           className="p-2 border rounded"
         />
 
-        <label htmlFor="description">Description</label>
+        <label htmlFor="description">Description <span className="text-red-500">*</span></label>
         <textarea
           id="description"
           name="description"
@@ -273,7 +284,7 @@ const EditTicketForm = ({ ticket }) => {
 
         {!EDITMODE || isCreator ? (
           <>
-            <label htmlFor="category">Project</label>
+            <label htmlFor="category">Project <span className="text-red-500">*</span></label>
             <select
               name="category"
               value={formData.category}
@@ -292,7 +303,7 @@ const EditTicketForm = ({ ticket }) => {
           </>
         ) : (
           <>
-            <label htmlFor="category">Project</label>
+            <label htmlFor="category">Project <span className="text-red-500">*</span></label>
             <input
               id="category"
               name="category"
@@ -306,7 +317,7 @@ const EditTicketForm = ({ ticket }) => {
 
         {teamMembers.length > 0 && (
           <>
-            <label htmlFor="assignedTo">Assign To</label>
+            <label htmlFor="assignedTo">Assign To <span className="text-red-500">*</span></label>
             <Select
               name="assignedTo"
               isMulti
@@ -321,7 +332,7 @@ const EditTicketForm = ({ ticket }) => {
           </>
         )}
 
-        <label>Priority</label>
+        <label>Priority <span className="text-red-500">*</span></label>
         <div className="flex gap-2">
           {[5, 4, 3, 2, 1].map((priority) => (
             <div key={priority} className="flex items-center gap-1">
@@ -338,7 +349,7 @@ const EditTicketForm = ({ ticket }) => {
           ))}
         </div>
 
-        <label htmlFor="progress">Progress</label>
+        <label htmlFor="progress">Progress <span className="text-red-500">*</span></label>
         <input
           type="range"
           id="progress"
@@ -350,7 +361,7 @@ const EditTicketForm = ({ ticket }) => {
           className="w-full"
         />
 
-        <label htmlFor="status">Status</label>
+        <label htmlFor="status">Status <span className="text-red-500">*</span></label>
         <select
           name="status"
           value={formData.status}
@@ -363,7 +374,7 @@ const EditTicketForm = ({ ticket }) => {
           {EDITMODE && <option value="reopened">Reopened</option>}
         </select>
 
-        <button type="submit" className="bg-blue-500 text-white p-2 rounded">
+        <button type="submit" className="hover:bg-blue-500 bg-gray-500 text-white p-2 rounded">
           {EDITMODE ? "Update Ticket" : "Create Ticket"}
         </button>
       </form>

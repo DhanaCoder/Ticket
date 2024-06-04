@@ -3,19 +3,19 @@ const StatusDisplay = ({ status }) => {
     let color;
     switch (status) {
       case "solved":
-        color = "bg-green-200";
+        color = "bg-green-400";
         return color;
 
       case "reopened":
-        color = "bg-blue-200";
+        color = "bg-blue-400";
         return color;
 
       case "started":
-        color = "bg-yellow-200";
+        color = "bg-yellow-400";
         return color;
 
       case "not started":
-        color = "bg-red-200";
+        color = "bg-red-400";
         return color;
       default:
         color = "bg-slate-700";

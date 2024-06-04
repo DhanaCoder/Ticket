@@ -24,12 +24,19 @@ const DescriptionModal = ({ ticket, department, onClose }) => {
     hour12: true,
   });
 
+  const truncateUrl = (url) => {
+    const maxLength = 50;
+    return url.length > maxLength ? `${url.substring(0, maxLength)}...` : url;
+  };
+
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
       <div className="bg-white p-6 rounded-lg shadow-lg w-11/12 md:w-2/3 lg:w-1/2">
         <h2 className="text-xl font-bold mb-4">Ticket Details</h2>
         <div className="mb-4">
-          <h4 className="text-lg font-semibold text-gray-900 mb-1 uppercase">{title}</h4>
+          <h4 className="text-lg font-semibold text-gray-900 mb-1 uppercase">
+            {title}
+          </h4>
           <p className="text-sm text-gray-900 mb-2">
             <strong>Description:</strong>
             <br />
@@ -42,7 +49,7 @@ const DescriptionModal = ({ ticket, department, onClose }) => {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  {text}
+                  {truncateUrl(text)}
                 </a>
               )}
             >
