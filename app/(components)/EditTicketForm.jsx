@@ -1,4 +1,5 @@
 "use client";
+
 import { useRouter } from "next/navigation";
 import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
@@ -42,9 +43,7 @@ const EditTicketForm = ({ ticket }) => {
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_PROJECT_URL}/all-projects`
-        );
+        const res = await fetch(`${process.env.NEXT_PUBLIC_PROJECT_URL}/all-projects`);
         if (!res.ok) {
           throw new Error("Failed to fetch projects");
         }
@@ -63,9 +62,7 @@ const EditTicketForm = ({ ticket }) => {
       if (!EDITMODE) return;
 
       try {
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_PROJECT_URL}/auth/users`
-        );
+        const res = await fetch(`${process.env.NEXT_PUBLIC_PROJECT_URL}/auth/users`);
         if (!res.ok) {
           throw new Error("Failed to fetch user details");
         }
@@ -94,9 +91,7 @@ const EditTicketForm = ({ ticket }) => {
 
   useEffect(() => {
     if (EDITMODE) {
-      const selectedProject = projects.find(
-        (project) => project.projectname === ticket.category
-      );
+      const selectedProject = projects.find((project) => project.projectname === ticket.category);
       if (selectedProject && selectedProject.teamMembers.length > 0) {
         setTeamMembers(selectedProject.teamMembers);
       }
@@ -140,18 +135,14 @@ const EditTicketForm = ({ ticket }) => {
     }
 
     if (name === "category") {
-      const selectedProject = projects.find(
-        (project) => project.projectname === value
-      );
+      const selectedProject = projects.find((project) => project.projectname === value);
       if (selectedProject) {
         if (selectedProject.teamMembers.length > 0) {
           setTeamMembers(selectedProject.teamMembers);
           console.log(selectedProject.teamMembers);
         } else {
           try {
-            const res = await fetch(
-              `${process.env.NEXT_PUBLIC_PROJECT_URL}/auth/users`
-            );
+            const res = await fetch(`${process.env.NEXT_PUBLIC_PROJECT_URL}/auth/users`);
             if (!res.ok) {
               throw new Error("Failed to fetch team members");
             }
@@ -174,23 +165,20 @@ const EditTicketForm = ({ ticket }) => {
   };
 
   const handleMultiSelectChange = (selectedOptions) => {
-    const selectedEmails = selectedOptions.map((option) => option.value);
-
-    if (selectedEmails.length > 10) {
+    if (selectedOptions.length > 10) {
       toast.error("You cannot assign more than 10 users to a ticket.");
       return;
     }
 
+    const selectedEmails = selectedOptions.map((option) => option.value);
     if (selectedEmails.includes(session.user.email)) {
-      toast.error(
-        "You cannot assign the ticket creator's email to the ticket."
-      );
+      toast.error("You cannot assign the ticket creator's email to the ticket.");
       return;
     }
 
     setFormData((prevState) => ({
       ...prevState,
-      assignedTo: selectedEmails,
+      assignedTo: selectedOptions,
     }));
   };
 
@@ -212,17 +200,17 @@ const EditTicketForm = ({ ticket }) => {
       const formDataWithDoneBy = {
         ...formData,
         email: session?.user?.email || formData.email,
-        doneBy:
-          formData.status === "solved" && formData.progress === 100
-            ? { email: session?.user?.email, name: session?.user?.name }
-            : null,
+        doneBy: formData.status === "solved" && formData.progress === 100
+          ? { email: session?.user?.email, name: session?.user?.name }
+          : null,
+        assignedTo: formData.assignedTo.map(({ value, label }) => ({ value, label })),
       };
 
       if (EDITMODE) {
         const res = await fetch(`/api/Tickets/${ticket._id}`, {
           method: "PUT",
           headers: {
-            "Content-type": "application/json",
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({ formData }),
         });
@@ -261,11 +249,7 @@ const EditTicketForm = ({ ticket }) => {
       <Nav />
       <div className="flex justify-center">
         <ToastContainer />
-        <form
-          onSubmit={handleSubmit}
-          method="post"
-          className="flex flex-col gap-3 w-1/2"
-        >
+        <form onSubmit={handleSubmit} method="post" className="flex flex-col gap-3 w-1/2">
           <h3 className="flex flex-row gap-10">
             {EDITMODE ? "Update Your Ticket" : "Create New Ticket"}
           </h3>
@@ -316,7 +300,6 @@ const EditTicketForm = ({ ticket }) => {
                   </option>
                 ))}
               </select>
-
               {teamMembers.length > 0 && (
                 <>
                   <label htmlFor="assignedTo">
@@ -326,9 +309,7 @@ const EditTicketForm = ({ ticket }) => {
                     name="assignedTo"
                     isMulti
                     options={teamMembers}
-                    value={teamMembers.filter((member) =>
-                      formData.assignedTo.includes(member.value)
-                    )}
+                    value={formData.assignedTo}
                     onChange={handleMultiSelectChange}
                     className="basic-multi-select"
                     classNamePrefix="select"
@@ -336,8 +317,8 @@ const EditTicketForm = ({ ticket }) => {
                 </>
               )}
             </>
-          ) : (
-            <>
+          ):(
+<>
               <label htmlFor="category">
                 Project <span className="text-red-500">*</span>
               </label>
@@ -359,7 +340,7 @@ const EditTicketForm = ({ ticket }) => {
                     id="assignedTo"
                     name="assignedTo"
                     type="text"
-                    value={formData.assignedTo.join(", ")} // Assuming assignedTo is an array
+                    value={formData.assignedTo.map((assignee) => assignee.label).join(", ")} // Assuming assignedTo is an array
                     className="p-2 border rounded"
                     readOnly
                   />
@@ -367,8 +348,8 @@ const EditTicketForm = ({ ticket }) => {
               )}
             </>
           )}
-
-          <label>
+            
+            <label>
             Priority <span className="text-red-500">*</span>
           </label>
           <div className="flex gap-2">

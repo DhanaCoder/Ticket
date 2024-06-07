@@ -30,7 +30,7 @@ const Dashboard = () => {
 
       let userTickets = [];
 
-      if (session.user.role === "Admin") {
+      if (session.user.role === "admin") {
         userTickets = data.tickets;
       } else {
         const userEmail = session.user.email;
@@ -38,13 +38,17 @@ const Dashboard = () => {
 
         userTickets = data.tickets.filter(
           (ticket) =>
-            ticket.assignedTo.includes(userEmail) ||
-            ticket.assignedTo.includes(employeeCode)
+            ticket.assignedTo.some(
+              (assigned) => assigned.value === userEmail || assigned.value === employeeCode
+            ) || ticket.email === userEmail
         );
+
+        // Ensure created tickets are also included
         const createdTickets = data.tickets.filter(
           (ticket) => ticket.email === userEmail
         );
-        userTickets = [...userTickets, ...createdTickets];
+
+        userTickets = [...new Set([...userTickets, ...createdTickets])];
       }
 
       setTickets(userTickets);
@@ -89,7 +93,7 @@ const Dashboard = () => {
             />
             <button
               type="submit"
-              className="m-2 rounded  hover:bg-blue-600 p-2 text-white flex  bg-gray-500 items-center"
+              className="m-2 rounded hover:bg-blue-600 p-2 text-white flex bg-gray-500 items-center"
             >
               <svg
                 className="fill-current h-6 w-6"
@@ -157,7 +161,7 @@ const Dashboard = () => {
             <div className="text-center mt-8 font-bold">No Pending tickets.</div>
           )}
           {filter === "All" && filteredTickets.length === 0 && (
-            <div className="text-center mt-8 font-bold">No tickets avilable.</div>
+            <div className="text-center mt-8 font-bold">No tickets available.</div>
           )}
         </div>
       ) : (

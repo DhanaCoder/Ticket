@@ -40,9 +40,7 @@ const TicketCard = ({ ticket }) => {
 
     const fetchCommentsCount = async () => {
       try {
-        const res = await fetch(
-          `/api/comments/${ticket._id}`
-        );
+        const res = await fetch(`/api/comments/${ticket._id}`);
         if (!res.ok) throw new Error("Failed to fetch comments");
         const data = await res.json();
         setCommentsCount(data.length);
@@ -84,10 +82,16 @@ const TicketCard = ({ ticket }) => {
     return truncateText(description, 25);
   };
 
-  const truncateAssignedTo = (assignedTo) => {
+  const truncateAssignedToLabels = (assignedTo) => {
     const maxLength = 30;
-    const truncatedList = assignedTo.join(", ").substring(0, maxLength) + ".....";
-    return truncateText(truncatedList, maxLength);
+    const assignedList = assignedTo.map(user => user.label).join(", ");
+    return truncateText(assignedList, maxLength);
+  };
+
+  const truncateAssignedToValues = (assignedTo) => {
+    const maxLength = 30;
+    const assignedList = assignedTo.map(user => user.value).join(", ");
+    return truncateText(assignedList, maxLength);
   };
 
   const getPriorityClass = (priority) => {
@@ -143,7 +147,10 @@ const TicketCard = ({ ticket }) => {
               {ticket.category || "Loading..."}
               <br />
               <span className="font-bold">Assigned To:</span>{" "}
-              {loading ? "Loading..." : truncateAssignedTo(ticket.assignedTo)}
+              {loading ? "Loading..." : truncateAssignedToLabels(ticket.assignedTo)}
+              <br />
+              <span className="font-bold">Assigned IDs:</span>{" "}
+              {loading ? "Loading..." : truncateAssignedToValues(ticket.assignedTo)}
             </p>
           </div>
           <div className="w-full flex items-center justify-between mb-2">

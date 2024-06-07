@@ -38,10 +38,18 @@ const ticketSchema = new Schema(
       type: String,
       required: true,
     },
-    assignedTo: {
-      type: [String],
-      required: false,
-    },
+    assignedTo: [
+      {
+        label: {
+          type: String,
+          required: true,
+        },
+        value: {
+          type: String,
+          required: true,
+        },
+      },
+    ],
     active: {
       type: Boolean,
       default: true,
