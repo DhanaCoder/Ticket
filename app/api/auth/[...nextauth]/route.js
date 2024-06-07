@@ -34,6 +34,7 @@ export const authOptions = {
             id: user._id,
             email: user.email,
             username: `${user.firstName} ${user.lastName}`,
+            employeeCode: user.employeeCode,
             role: user.role,
             department: user.department,
             position: user.position,
@@ -59,6 +60,7 @@ export const authOptions = {
         token.role = user.role;
         token.department = user.department;
         token.position = user.position;
+        token.employeeCode = user.employeeCode;
       }
       return token;
     },
@@ -67,7 +69,8 @@ export const authOptions = {
         session.user.username = token.username;
         session.user.role = token.role;
         session.user.department = token.department;
-        session.user.position = token.position; 
+        session.user.position = token.position;
+        session.user.employeeCode = token.employeeCode;
       }
       return session;
     },

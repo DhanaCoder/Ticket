@@ -21,7 +21,7 @@ const TicketCard = ({ ticket }) => {
     const fetchDepartment = async () => {
       try {
         const res = await fetch(
-          `https://api.rekonsys.tech/auth/users?email=${ticket.email}`
+          `${process.env.NEXT_PUBLIC_PROJECT_URL}/auth/users?email=${ticket.email}`
         );
         if (!res.ok) throw new Error("Failed to fetch user details");
         const data = await res.json();
@@ -41,7 +41,7 @@ const TicketCard = ({ ticket }) => {
     const fetchCommentsCount = async () => {
       try {
         const res = await fetch(
-          `http://localhost:3000/api/comments/${ticket._id}`
+          `/api/comments/${ticket._id}`
         );
         if (!res.ok) throw new Error("Failed to fetch comments");
         const data = await res.json();
@@ -90,9 +90,23 @@ const TicketCard = ({ ticket }) => {
     return truncateText(truncatedList, maxLength);
   };
 
+  const getPriorityClass = (priority) => {
+    if (priority === 5 || priority === 4) {
+      return "bg-red-500";
+    } else if (priority === 3) {
+      return "bg-yellow-500";
+    } else {
+      return "bg-white";
+    }
+  };
+
   return (
     <>
-      <div className="relative w-80 h-96 overflow-hidden bg-white shadow-lg border-t-4 my-2 border-b-4 border-black rounded-lg transition-transform duration-500 transform hover:-translate-y-2 cursor-pointer">
+      <div
+        className={`relative w-80 h-96 overflow-hidden shadow-lg border-t-4 my-2 border-b-4 border-black rounded-lg transition-transform duration-500 transform hover:-translate-y-2 cursor-pointer ${getPriorityClass(
+          ticket.priority
+        )}`}
+      >
         <div className="absolute inset-0 bg-gradient-to-br from-white to-gray-100 z-0 rounded-lg"></div>
         <div className="absolute inset-0 z-10 flex flex-col items-center justify-between text-black font-medium text-base p-4">
           <div className="text-center mb-2">

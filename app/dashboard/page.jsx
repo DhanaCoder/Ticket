@@ -34,8 +34,12 @@ const Dashboard = () => {
         userTickets = data.tickets;
       } else {
         const userEmail = session.user.email;
-        userTickets = data.tickets.filter((ticket) =>
-          ticket.assignedTo.includes(userEmail)
+        const employeeCode = session.user.employeeCode;
+
+        userTickets = data.tickets.filter(
+          (ticket) =>
+            ticket.assignedTo.includes(userEmail) ||
+            ticket.assignedTo.includes(employeeCode)
         );
         const createdTickets = data.tickets.filter(
           (ticket) => ticket.email === userEmail
@@ -132,21 +136,32 @@ const Dashboard = () => {
               Completed
             </button>
           </div>
-          {searchedCategories.map((uniqueCategory, categoryIndex) => (
-            <div key={categoryIndex} className="mb-4 mx-4">
-              <h2 className="text-lg font-bold">{uniqueCategory}</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                {filteredTickets
-                  .filter((ticket) => ticket.category === uniqueCategory)
-                  .map((filteredTicket, index) => (
-                    <TicketCard key={index} ticket={filteredTicket} />
-                  ))}
+          {
+            searchedCategories.map((uniqueCategory, categoryIndex) => (
+              <div key={categoryIndex} className="mb-4 mx-4">
+                <h2 className="text-lg font-bold">{uniqueCategory}</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                  {filteredTickets
+                    .filter((ticket) => ticket.category === uniqueCategory)
+                    .map((filteredTicket, index) => (
+                      <TicketCard key={index} ticket={filteredTicket} />
+                    ))}
+                </div>
               </div>
-            </div>
-          ))}
+            ))
+          }
+          {filter === "Completed" && filteredTickets.length === 0 && (
+            <div className="text-center mt-8 font-bold">No completed tickets.</div>
+          )}
+          {filter === "Pending" && filteredTickets.length === 0 && (
+            <div className="text-center mt-8 font-bold">No Pending tickets.</div>
+          )}
+          {filter === "All" && filteredTickets.length === 0 && (
+            <div className="text-center mt-8 font-bold">No tickets avilable.</div>
+          )}
         </div>
       ) : (
-        <div className="text-center mt-20">You must be logged in to view this page.</div>
+        <div className="text-center mt-20 font-bold">Loading...</div>
       )}
     </div>
   );

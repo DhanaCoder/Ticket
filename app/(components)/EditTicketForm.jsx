@@ -5,9 +5,7 @@ import { useSession } from "next-auth/react";
 import Select from "react-select";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import Link from "next/link";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faHome } from "@fortawesome/free-solid-svg-icons";
+import Nav from "./Nav";
 
 const EditTicketForm = ({ ticket }) => {
   const EDITMODE = ticket._id !== "new";
@@ -65,7 +63,9 @@ const EditTicketForm = ({ ticket }) => {
       if (!EDITMODE) return;
 
       try {
-        const res = await fetch(`https://api.rekonsys.tech/auth/users`);
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_PROJECT_URL}/auth/users`
+        );
         if (!res.ok) {
           throw new Error("Failed to fetch user details");
         }
@@ -91,6 +91,17 @@ const EditTicketForm = ({ ticket }) => {
 
     fetchUserDepartment();
   }, [EDITMODE, ticket.email]);
+
+  useEffect(() => {
+    if (EDITMODE) {
+      const selectedProject = projects.find(
+        (project) => project.projectname === ticket.category
+      );
+      if (selectedProject && selectedProject.teamMembers.length > 0) {
+        setTeamMembers(selectedProject.teamMembers);
+      }
+    }
+  }, [EDITMODE, ticket.category, projects]);
 
   const handleChange = async (e) => {
     const { name, value } = e.target;
@@ -135,9 +146,12 @@ const EditTicketForm = ({ ticket }) => {
       if (selectedProject) {
         if (selectedProject.teamMembers.length > 0) {
           setTeamMembers(selectedProject.teamMembers);
+          console.log(selectedProject.teamMembers);
         } else {
           try {
-            const res = await fetch("https://api.rekonsys.tech/auth/users");
+            const res = await fetch(
+              `${process.env.NEXT_PUBLIC_PROJECT_URL}/auth/users`
+            );
             if (!res.ok) {
               throw new Error("Failed to fetch team members");
             }
@@ -243,141 +257,175 @@ const EditTicketForm = ({ ticket }) => {
   const isCreator = session?.user?.email === ticket.email;
 
   return (
-    <div className="flex justify-center">
-      <ToastContainer />
-      <form
-        onSubmit={handleSubmit}
-        method="post"
-        className="flex flex-col gap-3 w-1/2"
-      >
-        <h3 className="flex flex-row gap-10">{EDITMODE ? "Update Your Ticket" : "Create New Ticket"}
-        <Link href="/dashboard">
-              <FontAwesomeIcon
-                icon={faHome}
-                className="text-black text-xl cursor-pointer hover:text-blue-500"
-              />
-            </Link>
-            
-        </h3>
-
-        <label htmlFor="title">Title <span className="text-red-500">*</span></label>
-        <input
-          id="title"
-          name="title"
-          type="text"
-          onChange={handleChange}
-          required={true}
-          value={formData.title}
-          className="p-2 border rounded"
-        />
-
-        <label htmlFor="description">Description <span className="text-red-500">*</span></label>
-        <textarea
-          id="description"
-          name="description"
-          onChange={handleChange}
-          required={true}
-          value={formData.description}
-          rows="5"
-          className="p-2 border rounded"
-        />
-
-        {!EDITMODE || isCreator ? (
-          <>
-            <label htmlFor="category">Project <span className="text-red-500">*</span></label>
-            <select
-              name="category"
-              value={formData.category}
-              onChange={handleChange}
-              className="p-2 border rounded"
-            >
-              <option value="" disabled>
-                Select a project
-              </option>
-              {projects?.map((project) => (
-                <option key={project._id} value={project.projectname}>
-                  {project.projectname}
-                </option>
-              ))}
-            </select>
-          </>
-        ) : (
-          <>
-            <label htmlFor="category">Project <span className="text-red-500">*</span></label>
-            <input
-              id="category"
-              name="category"
-              type="text"
-              value={formData.category}
-              className="p-2 border rounded"
-              readOnly
-            />
-          </>
-        )}
-
-        {teamMembers.length > 0 && (
-          <>
-            <label htmlFor="assignedTo">Assign To <span className="text-red-500">*</span></label>
-            <Select
-              name="assignedTo"
-              isMulti
-              options={teamMembers}
-              value={teamMembers.filter((member) =>
-                formData.assignedTo.includes(member.value)
-              )}
-              onChange={handleMultiSelectChange}
-              className="basic-multi-select"
-              classNamePrefix="select"
-            />
-          </>
-        )}
-
-        <label>Priority <span className="text-red-500">*</span></label>
-        <div className="flex gap-2">
-          {[5, 4, 3, 2, 1].map((priority) => (
-            <div key={priority} className="flex items-center gap-1">
-              <input
-                id={`priority-${priority}`}
-                name="priority"
-                type="radio"
-                onChange={handleChange}
-                value={priority}
-                checked={formData.priority == priority}
-              />
-              <label htmlFor={`priority-${priority}`}>{priority}</label>
-            </div>
-          ))}
-        </div>
-
-        <label htmlFor="progress">Progress <span className="text-red-500">*</span></label>
-        <input
-          type="range"
-          id="progress"
-          name="progress"
-          value={formData.progress}
-          min="0"
-          max="100"
-          onChange={handleChange}
-          className="w-full"
-        />
-
-        <label htmlFor="status">Status <span className="text-red-500">*</span></label>
-        <select
-          name="status"
-          value={formData.status}
-          onChange={handleChange}
-          className="p-2 border rounded"
+    <div>
+      <Nav />
+      <div className="flex justify-center">
+        <ToastContainer />
+        <form
+          onSubmit={handleSubmit}
+          method="post"
+          className="flex flex-col gap-3 w-1/2"
         >
-          <option value="not started">Not Started</option>
-          <option value="started">Started</option>
-          {EDITMODE && <option value="solved">Solved</option>}
-          {EDITMODE && <option value="reopened">Reopened</option>}
-        </select>
+          <h3 className="flex flex-row gap-10">
+            {EDITMODE ? "Update Your Ticket" : "Create New Ticket"}
+          </h3>
 
-        <button type="submit" className="hover:bg-blue-500 bg-gray-500 text-white p-2 rounded">
-          {EDITMODE ? "Update Ticket" : "Create Ticket"}
-        </button>
-      </form>
+          <label htmlFor="title">
+            Title <span className="text-red-500">*</span>
+          </label>
+          <input
+            id="title"
+            name="title"
+            type="text"
+            onChange={handleChange}
+            required={true}
+            value={formData.title}
+            className="p-2 border rounded"
+          />
+
+          <label htmlFor="description">
+            Description <span className="text-red-500">*</span>
+          </label>
+          <textarea
+            id="description"
+            name="description"
+            onChange={handleChange}
+            required={true}
+            value={formData.description}
+            rows="5"
+            className="p-2 border rounded"
+          />
+
+          {!EDITMODE || isCreator ? (
+            <>
+              <label htmlFor="category">
+                Project <span className="text-red-500">*</span>
+              </label>
+              <select
+                name="category"
+                value={formData.category}
+                onChange={handleChange}
+                className="p-2 border rounded"
+              >
+                <option value="" disabled>
+                  Select a project
+                </option>
+                {projects?.map((project) => (
+                  <option key={project._id} value={project.projectname}>
+                    {project.projectname}
+                  </option>
+                ))}
+              </select>
+
+              {teamMembers.length > 0 && (
+                <>
+                  <label htmlFor="assignedTo">
+                    Assign To <span className="text-red-500">*</span>
+                  </label>
+                  <Select
+                    name="assignedTo"
+                    isMulti
+                    options={teamMembers}
+                    value={teamMembers.filter((member) =>
+                      formData.assignedTo.includes(member.value)
+                    )}
+                    onChange={handleMultiSelectChange}
+                    className="basic-multi-select"
+                    classNamePrefix="select"
+                  />
+                </>
+              )}
+            </>
+          ) : (
+            <>
+              <label htmlFor="category">
+                Project <span className="text-red-500">*</span>
+              </label>
+              <input
+                id="category"
+                name="category"
+                type="text"
+                value={formData.category}
+                className="p-2 border rounded"
+                readOnly
+              />
+
+              {teamMembers.length > 0 && (
+                <>
+                  <label htmlFor="assignedTo">
+                    Assign To <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    id="assignedTo"
+                    name="assignedTo"
+                    type="text"
+                    value={formData.assignedTo.join(", ")} // Assuming assignedTo is an array
+                    className="p-2 border rounded"
+                    readOnly
+                  />
+                </>
+              )}
+            </>
+          )}
+
+          <label>
+            Priority <span className="text-red-500">*</span>
+          </label>
+          <div className="flex gap-2">
+            {[5, 4, 3, 2, 1].map((priority) => (
+              <div key={priority} className="flex items-center gap-1">
+                <input
+                  id={`priority-${priority}`}
+                  name="priority"
+                  type="radio"
+                  onChange={handleChange}
+                  value={priority}
+                  checked={formData.priority == priority}
+                />
+                <label htmlFor={`priority-${priority}`}>{priority}</label>
+              </div>
+            ))}
+          </div>
+
+          <label htmlFor="progress">
+            Progress <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="range"
+            id="progress"
+            name="progress"
+            value={formData.progress}
+            min="0"
+            max="100"
+            onChange={handleChange}
+            className="w-full"
+          />
+
+          <label htmlFor="status">
+            Status <span className="text-red-500">*</span>
+          </label>
+          <select
+            name="status"
+            value={formData.status}
+            onChange={handleChange}
+            className="p-2 border rounded"
+          >
+            <option value="not started">Not Started</option>
+            <option value="started">Started</option>
+            {EDITMODE && <option value="solved">Solved</option>}
+            {EDITMODE && isCreator && (
+              <option value="reopened">Reopened</option>
+            )}
+          </select>
+
+          <button
+            type="submit"
+            className="hover:bg-blue-500 bg-gray-500 text-white p-2 rounded"
+          >
+            {EDITMODE ? "Update Ticket" : "Create Ticket"}
+          </button>
+        </form>
+      </div>
     </div>
   );
 };
