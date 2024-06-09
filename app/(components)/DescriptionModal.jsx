@@ -24,6 +24,15 @@ const DescriptionModal = ({ ticket, department, onClose }) => {
     hour12: true,
   });
 
+  const updateDateTime = new Date(ticket.updatedAt).toLocaleString("en-US", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  });
+
   const truncateUrl = (url) => {
     const maxLength = 50;
     return url.length > maxLength ? `${url.substring(0, maxLength)}...` : url;
@@ -80,8 +89,10 @@ const DescriptionModal = ({ ticket, department, onClose }) => {
             <strong>Assigned To:</strong> {renderAssignedTo(assignedTo)}
             <br />
             <strong>Created At:</strong> {createdDateTime}
+            <br />
+            <strong>Updated At:</strong> {updateDateTime}
           </p>
-          {status === "done" && doneBy && (
+          {status === "solved" && doneBy && (
             <p className="text-sm text-green-600 font-bold">
               Done by: {doneBy.name} ({doneBy.email})
             </p>

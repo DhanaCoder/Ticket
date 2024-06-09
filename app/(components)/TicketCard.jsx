@@ -61,6 +61,16 @@ const TicketCard = ({ ticket }) => {
     minute: "2-digit",
     hour12: true,
   });
+  const updateDateTime = new Date(ticket.updatedAt).toLocaleString("en-US", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  });
+
+  
 
   const isAdmin = session && session.user.role === "admin";
 
@@ -83,35 +93,40 @@ const TicketCard = ({ ticket }) => {
   };
 
   const truncateAssignedToLabels = (assignedTo) => {
-    const maxLength = 30;
-    const assignedList = assignedTo.map(user => user.label).join(", ");
+    const maxLength = 25;
+    const assignedList = assignedTo.map((user) => user.label).join(", ");
     return truncateText(assignedList, maxLength);
   };
 
   const truncateAssignedToValues = (assignedTo) => {
     const maxLength = 30;
-    const assignedList = assignedTo.map(user => user.value).join(", ");
+    const assignedList = assignedTo.map((user) => user.value).join(", ");
     return truncateText(assignedList, maxLength);
   };
 
   const getPriorityClass = (priority) => {
     if (priority === 5 || priority === 4) {
-      return "bg-red-500";
+      return { borderColor: "border-red-500", labelColor: "bg-red-500" ,label: "A" };
     } else if (priority === 3) {
-      return "bg-yellow-500";
+      return { borderColor: "border-green-500", labelColor: "bg-green-500",label: "B" };
     } else {
-      return "bg-white";
+      return { borderColor: "border-black", labelColor: "bg-black", label: "C" };
     }
   };
+
+  const priorityStyle = getPriorityClass(ticket.priority);
 
   return (
     <>
       <div
-        className={`relative w-80 h-96 overflow-hidden shadow-lg border-t-4 my-2 border-b-4 border-black rounded-lg transition-transform duration-500 transform hover:-translate-y-2 cursor-pointer ${getPriorityClass(
-          ticket.priority
-        )}`}
+        className={`relative w-80 h-96 overflow-hidden shadow-lg border-t-4 my-2 border-b-4 border-black rounded-lg transition-transform duration-500 transform hover:-translate-y-2 cursor-pointer ${priorityStyle.borderColor}`}
       >
-        <div className="absolute inset-0 bg-gradient-to-br from-white to-gray-100 z-0 rounded-lg"></div>
+        {priorityStyle.label && (
+          <div className={`absolute top-0 right-0 mt-2 mr-2 text-xs text-white ${priorityStyle.labelColor} px-2 py-1 rounded-lg z-20`}>
+            {priorityStyle.label}
+          </div>
+        )}
+
         <div className="absolute inset-0 z-10 flex flex-col items-center justify-between text-black font-medium text-base p-4">
           <div className="text-center mb-2">
             <h4 className="text-lg font-semibold text-gray-900 mb-1 uppercase">
@@ -138,6 +153,7 @@ const TicketCard = ({ ticket }) => {
           </div>
           <div className="w-full text-left mt-4 mb-4 ml-4 mr-4">
             <p className="text-sm text-gray-900 mb-2">
+            <p className="text-xs text-gray-500 font-bold">C.Date:{createdDateTime}</p>
               <span className="font-bold my-2">Created by:</span> {ticket.email}
               <br />
               <span className="font-bold">Department:</span>{" "}
@@ -147,10 +163,14 @@ const TicketCard = ({ ticket }) => {
               {ticket.category || "Loading..."}
               <br />
               <span className="font-bold">Assigned To:</span>{" "}
-              {loading ? "Loading..." : truncateAssignedToLabels(ticket.assignedTo)}
+              {loading
+                ? "Loading..."
+                : truncateAssignedToLabels(ticket.assignedTo)}
               <br />
-              <span className="font-bold">Assigned IDs:</span>{" "}
-              {loading ? "Loading..." : truncateAssignedToValues(ticket.assignedTo)}
+              <span className="font-bold">EmployeeCodes:</span>{" "}
+              {loading
+                ? "Loading..."
+                : truncateAssignedToValues(ticket.assignedTo)}
             </p>
           </div>
           <div className="w-full flex items-center justify-between mb-2">
@@ -162,7 +182,7 @@ const TicketCard = ({ ticket }) => {
 
           <div className="w-full flex items-center justify-between">
             <div className="flex flex-col">
-              <p className="text-xs text-gray-500">{createdDateTime}</p>
+              <p className="text-xs text-gray-500 font-bold">U.Date:{updateDateTime}</p>
               <ProgressDisplay progress={ticket.progress} />
             </div>
             <StatusDisplay status={ticket.status} />
@@ -191,8 +211,8 @@ const TicketCard = ({ ticket }) => {
               session &&
               (session.user.email === ticket.email ||
                 ticket.status === "reopened" ||
-                "started" ||
-                "not started") && (
+                ticket.status === "started" || // Corrected condition
+                ticket.status === "not started") && ( // Corrected condition
                 <Link href={`/TicketPage/${ticket._id}`}>
                   <span className="text-sm hover:text-blue-600 font-bold cursor-pointer">
                     Edit
